@@ -1,19 +1,3 @@
-import pathlib
-import json
-import os
-
-FILE_BASE_NAME = 'contact-book.base'
-file_base_to_path = pathlib.PurePath(os.getenv('HOME'), FILE_BASE_NAME)
-
-WELCOME_TEXT = 'Welcome to you contact book!'
-MENU_TEXT = '''Select on action (enter number) and press key Enter:
-1. Add contact
-2. Find contact
-3. Show all contacts
-4. Remove contact
-5. Exit'''
-
-
 class UnknownAction(Exception):
     pass
 
@@ -108,6 +92,22 @@ def find_contact(dict_contacts: dict, phone_number: str) -> Contact | None:
 
 
 def main():
+
+    import pathlib
+    import json
+    import os
+
+    FILE_BASE_NAME = 'contact-book.base'
+    file_base_to_path = pathlib.PurePath(os.getenv('HOME'), FILE_BASE_NAME)
+
+    WELCOME_TEXT = 'Welcome to you contact book!'
+    MENU_TEXT = '''Select on action (enter number) and press key Enter:
+    1. Add contact
+    2. Find contact
+    3. Show all contacts
+    4. Remove contact
+    5. Exit'''
+
     action = 0
     contacts = {}
 
