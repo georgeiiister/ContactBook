@@ -92,7 +92,7 @@ def add_contact() -> Contact:
 
 
 def print_contacts(dict_contacts: dict) -> None:
-    cnt_rows=0
+    cnt_rows = 0
     if dict_contacts:
         for contact_phone in dict_contacts:
             cnt_rows += 1
