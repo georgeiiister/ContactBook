@@ -95,6 +95,7 @@ def print_contacts(dict_contacts: dict) -> None:
     cnt_rows=0
     if dict_contacts:
         for contact_phone in dict_contacts:
+            cnt_rows+=1
             if cnt_rows%10 == 0:
                 input('Press any key to continue...')
             print(dict_contacts[contact_phone])
