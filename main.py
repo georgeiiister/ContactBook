@@ -111,8 +111,6 @@ def main():
     action = 0
     contacts = {}
 
-    #download_base
-
     print(WELCOME_TEXT)
 
     while True:
