@@ -25,6 +25,9 @@ class ContactNotFound(Exception):
 class FileBaseNotFound(Exception):
     pass
 
+class FileBaseNotCreated(Exception):
+    pass
+
 
 class Contact:
     count_objects = 0
@@ -115,16 +118,23 @@ def find_contact(dict_contacts: dict,
                  phone_number: str) -> Contact | None:
     return dict_contacts.get(phone_number)
 
+def create_file_base(path_to_file_base:pathlib.Path)-> bool|None:
+    with open(path_to_file_base,'w') as fb:
+        pass
+    return True
+
+
 
 def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.sep + 'contact-book.dbase')) -> tuple:
     contact = []
     base_dict = {}
 
     try:
-        if not pathlib.Path(path_to_file_base):
+        if not pathlib.Path(path_to_file_base).exists():
             raise FileBaseNotFound
     except FileBaseNotFound:
-        return tuple()
+        if not create_file_base(path_to_file_base=path_to_file_base):
+            return tuple()
 
     with open(path_to_file_base, 'r') as fb:
         for rec in fb:
@@ -136,10 +146,11 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
 
 def full_upload_dbase(dbase_dict: dict, path_to_file_base: pathlib.Path) -> None:
     try:
-        if not pathlib.Path(path_to_file_base):
+        if not pathlib.Path(path_to_file_base).exists():
             raise FileBaseNotFound
     except FileBaseNotFound:
-        raise
+        if not create_file_base(path_to_file_base=path_to_file_base):
+            raise FileBaseNotCreated
 
     with open(path_to_file_base, 'w') as fb:
         for phone_number, contact in dbase_dict.items():
@@ -150,10 +161,11 @@ def full_backup_dbase(dbase_dict: dict,
                       path_to_file_base=pathlib.Path(os.getenv('HOME') + os.sep + 'contact-book.backup')) -> None:
     import json
     try:
-        if not pathlib.Path(path_to_file_base):
+        if not pathlib.Path(path_to_file_base).exists():
             raise FileBaseNotFound
     except FileBaseNotFound:
-        raise
+        if not create_file_base(path_to_file_base=path_to_file_base):
+            raise FileBaseNotCreated
 
     dict2json = {}
 
@@ -177,6 +189,7 @@ def main():
 
     action = 0
     contacts, cur_path_to_file_base = full_download_dbase()
+    contacts_in_memory = False
 
     print(welcome_text)
 
@@ -188,7 +201,7 @@ def main():
                 raise UnknownAction
 
             if action == 6:
-                if contacts:
+                if contacts_in_memory:
                     full_upload_dbase(dbase_dict=contacts, path_to_file_base=cur_path_to_file_base)
                 break
 
@@ -197,6 +210,7 @@ def main():
                     try:
                         contact = add_contact()
                         contacts[contact.phone_number] = contact
+                        contacts_in_memory = True
                         raise ExitInMainMenu
                     except (NoVerifiedContactName, NoVerifiedPhoneNumber, ExitInMainMenu):
                         if input('Add another? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
