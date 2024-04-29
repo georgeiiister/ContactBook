@@ -67,9 +67,11 @@ class Contact:
             else:
                 return False
 
-    def get_format_to_base(self):
+    def get_format_to_dbase(self) -> str:
         return f'{self.phone_number}:{self.contact_name}'
 
+    def get_dict(self) -> dict:
+        return {self.phone_number: {'phone_number': self.phone_number, 'contact_name': self.contact_name}}
 
     def __init__(self, phone_number: str,
                  contact_name: str):
@@ -114,7 +116,7 @@ def find_contact(dict_contacts: dict,
     return dict_contacts.get(phone_number)
 
 
-def full_download_base(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.sep + 'contact-book.base')) -> tuple:
+def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.sep + 'contact-book.dbase')) -> tuple:
     contact = []
     base_dict = {}
 
@@ -132,7 +134,7 @@ def full_download_base(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.sep
     return base_dict, path_to_file_base
 
 
-def full_upload_base(base_dict: dict, path_to_file_base: pathlib.Path) -> None:
+def full_upload_dbase(dbase_dict: dict, path_to_file_base: pathlib.Path) -> None:
     try:
         if not pathlib.Path(path_to_file_base):
             raise FileBaseNotFound
@@ -140,8 +142,26 @@ def full_upload_base(base_dict: dict, path_to_file_base: pathlib.Path) -> None:
         raise
 
     with open(path_to_file_base, 'w') as fb:
-        for phone_number, contact in base_dict.items():
-            fb.write(contact.get_format_to_base()+'\n')
+        for phone_number, contact in dbase_dict.items():
+            fb.write(contact.get_format_to_dbase() + '\n')
+
+
+def full_backup_dbase(dbase_dict: dict,
+                      path_to_file_base=pathlib.Path(os.getenv('HOME') + os.sep + 'contact-book.backup')) -> None:
+    import json
+    try:
+        if not pathlib.Path(path_to_file_base):
+            raise FileBaseNotFound
+    except FileBaseNotFound:
+        raise
+
+    dict2json = {}
+
+    for phone_number, contact in dbase_dict.items():
+        dict2json = {**dict2json, **contact.get_dict()}
+
+    with open(path_to_file_base, 'w') as fb:
+        json.dump(dict2json, fb, indent=4)
 
 
 def main():
@@ -152,10 +172,11 @@ def main():
     2. Find contact
     3. Show all contacts
     4. Remove contact
-    5. Exit'''
+    5. Backup contact book
+    6. Exit'''
 
     action = 0
-    contacts, cur_path_to_file_base = full_download_base()
+    contacts, cur_path_to_file_base = full_download_dbase()
 
     print(welcome_text)
 
@@ -163,12 +184,12 @@ def main():
         print(menu_text)
         try:
             action = int(input('Select action and press the key Enter>> '))
-            if action not in (1, 2, 3, 4, 5):
+            if action not in (1, 2, 3, 4, 5, 6):
                 raise UnknownAction
 
-            if action == 5:
+            if action == 6:
                 if contacts:
-                    full_upload_base(base_dict=contacts, path_to_file_base=cur_path_to_file_base)
+                    full_upload_dbase(dbase_dict=contacts, path_to_file_base=cur_path_to_file_base)
                 break
 
             while True:
@@ -216,10 +237,16 @@ def main():
                                  '("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                             break
 
+                if action == 5:
+                    full_backup_dbase(dbase_dict=contacts)
+                    input('Backup done...')
+                    break
+
         except (UnknownAction, ValueError):
             if input('Sorry, you select unknown action. Repeat?'
                      '("Y" - Press any key / "N" - exit)>> ').upper() == 'N':
                 break
+
 
 if __name__ == '__main__':
     main()
