@@ -25,6 +25,7 @@ class ContactNotFound(Exception):
 class FileBaseNotFound(Exception):
     pass
 
+
 class FileBaseNotCreated(Exception):
     pass
 
@@ -76,6 +77,9 @@ class Contact:
     def get_dict(self) -> dict:
         return {self.phone_number: {'phone_number': self.phone_number, 'contact_name': self.contact_name}}
 
+    def get_contact_name(self):
+        return self.contact_name
+
     def __init__(self, phone_number: str,
                  contact_name: str):
 
@@ -93,6 +97,12 @@ class Contact:
     def __del__(self):
         Contact.count_objects -= 1
 
+
+def sorted_dict_contacts(dict_contacts: dict) -> list:
+    list_contacts = sorted(dict_contacts.items(), key=lambda i: i[1].get_contact_name())
+    return list_contacts
+
+
 def decorator_args_kwargs_print(func):
     def wrapper(*args, **kwargs):
         print(*args, sep='\n')
@@ -100,6 +110,7 @@ def decorator_args_kwargs_print(func):
         return func(*args, **kwargs)
 
     return wrapper
+
 
 def add_contact() -> Contact:
     contact_name = input('Please, input contact name>> ')
@@ -112,11 +123,12 @@ def add_contact() -> Contact:
 def print_contacts(dict_contacts: dict) -> None:
     cnt_rows = 0
     if dict_contacts:
-        for contact_phone in dict_contacts:
+        list_contacts = sorted_dict_contacts(dict_contacts=dict_contacts)
+        for contact_phone, contact in list_contacts:
             cnt_rows += 1
             if cnt_rows % 10 == 0:
                 input('Press any key to continue...')
-            print(dict_contacts[contact_phone])
+            print(contact)
     else:
         print('Contact book is empty!')
 
@@ -125,8 +137,9 @@ def find_contact(dict_contacts: dict,
                  phone_number: str) -> Contact | None:
     return dict_contacts.get(phone_number)
 
-def create_file_base(path_to_file_base:pathlib.Path)-> bool|None:
-    with open(path_to_file_base,'w') as fb:
+
+def create_file_base(path_to_file_base: pathlib.Path) -> bool | None:
+    with open(path_to_file_base, 'w') as fb:
         pass
     return True
 
@@ -148,6 +161,7 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
             base_dict[contact[0]] = Contact(phone_number=contact[0], contact_name=contact[1])
 
     return base_dict, path_to_file_base
+
 
 #@decorator_args_kwargs_print
 def full_upload_dbase(dbase_dict: dict, path_to_file_base: pathlib.Path) -> None:
@@ -195,7 +209,7 @@ def main():
 
     action = 0
     contacts, cur_path_to_file_base = full_download_dbase()
-    contacts_in_memory = False
+    contacts_change = False
 
     print(welcome_text)
 
@@ -207,7 +221,7 @@ def main():
                 raise UnknownAction
 
             if action == 6:
-                if contacts_in_memory:
+                if contacts_change:
                     full_upload_dbase(dbase_dict=contacts, path_to_file_base=cur_path_to_file_base)
                 break
 
@@ -216,7 +230,7 @@ def main():
                     try:
                         contact = add_contact()
                         contacts[contact.phone_number] = contact
-                        contacts_in_memory = True
+                        contacts_change = True
                         raise ExitInMainMenu
                     except (NoVerifiedContactName, NoVerifiedPhoneNumber, ExitInMainMenu):
                         if input('Add another? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
@@ -250,6 +264,7 @@ def main():
                         else:
                             del contacts[contact.phone_number]
                             del contact
+                            contacts_change = True
                             if input('Repeat remove? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                                 break
                     except ContactNotFound:
