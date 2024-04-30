@@ -150,7 +150,7 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
 
     return base_dict, path_to_file_base
 
-@decorator_args_kwargs_print
+#@decorator_args_kwargs_print
 def full_upload_dbase(dbase_dict: dict, path_to_file_base: pathlib.Path) -> None:
     try:
         if not pathlib.Path(path_to_file_base).exists():
