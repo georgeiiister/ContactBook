@@ -131,7 +131,6 @@ def create_file_base(path_to_file_base:pathlib.Path)-> bool|None:
     return True
 
 
-
 def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.sep + 'contact-book.dbase')) -> tuple:
     contact = []
     base_dict = {}
