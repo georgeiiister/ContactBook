@@ -93,6 +93,13 @@ class Contact:
     def __del__(self):
         Contact.count_objects -= 1
 
+def decorator_args_kwargs_print(func):
+    def wrapper(*args, **kwargs):
+        print(*args, sep='\n')
+        print(*kwargs.items(), sep='\n')
+        return func(*args, **kwargs)
+
+    return wrapper
 
 def add_contact() -> Contact:
     contact_name = input('Please, input contact name>> ')
@@ -143,7 +150,7 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
 
     return base_dict, path_to_file_base
 
-
+@decorator_args_kwargs_print
 def full_upload_dbase(dbase_dict: dict, path_to_file_base: pathlib.Path) -> None:
     try:
         if not pathlib.Path(path_to_file_base).exists():
