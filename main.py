@@ -205,7 +205,8 @@ def main():
     3. Show all contacts
     4. Remove contact
     5. Backup contact book
-    6. Exit'''
+    6. Save contact book on disk
+    7. Exit'''
 
     action = 0
     contacts, cur_path_to_file_base = full_download_dbase()
@@ -217,10 +218,10 @@ def main():
         print(menu_text)
         try:
             action = int(input('Select action and press the key Enter>> '))
-            if action not in (1, 2, 3, 4, 5, 6):
+            if action not in (1, 2, 3, 4, 5, 6, 7):
                 raise UnknownAction
 
-            if action == 6:
+            if action == 7:
                 if contacts_change:
                     full_upload_dbase(dbase_dict=contacts, path_to_file_base=cur_path_to_file_base)
                 break
@@ -275,6 +276,14 @@ def main():
                 if action == 5:
                     full_backup_dbase(dbase_dict=contacts)
                     input('Backup done...')
+                    break
+
+                if action == 6:
+                    if contacts_change:
+                        full_upload_dbase(dbase_dict=contacts, path_to_file_base=cur_path_to_file_base)
+                    else:
+                        print('There were no changes')
+                    input('Press any key to continue...')
                     break
 
         except (UnknownAction, ValueError):
