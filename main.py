@@ -205,7 +205,7 @@ def main():
     3. Show all contacts
     4. Remove contact
     5. Backup contact book
-    6. Save contact book on disk
+    6. Save contact book to disk
     7. Exit'''
 
     action = 0
@@ -223,7 +223,9 @@ def main():
 
             if action == 7:
                 if contacts_change:
-                    full_upload_dbase(dbase_dict=contacts, path_to_file_base=cur_path_to_file_base)
+                    if not input('You have made changes. Save to disk? '
+                                 '("Y" - Press any key / "N" - exit without saving)>> ').upper() == 'N':
+                        full_upload_dbase(dbase_dict=contacts, path_to_file_base=cur_path_to_file_base)
                 break
 
             while True:
@@ -282,7 +284,7 @@ def main():
                     if contacts_change:
                         full_upload_dbase(dbase_dict=contacts, path_to_file_base=cur_path_to_file_base)
                     else:
-                        print('There were no changes')
+                        print('There were no changes!')
                     input('Press any key to continue...')
                     break
 
