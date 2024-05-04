@@ -176,7 +176,7 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
 
             cnt_rows += 1
             if cnt_rows % mark_print == 0:
-                print(f'download {cnt_rows} rows...')
+                print(f'download {cnt_rows} rows from file on disk')
 
 
     return base_dict, path_to_file_base
@@ -230,14 +230,16 @@ def full_backup_dbase(dbase_dict: dict,
 def main():
     welcome_text = 'Welcome to you contact book!'
 
-    menu_text = '''Select on action (enter number) and press key Enter:
-    1. Add contact
-    2. Find contact
-    3. Show all contacts
-    4. Remove contact
-    5. Backup contact book
-    6. Save contact book to disk
-    7. Exit'''
+    menu_text = ('Select on action (enter number) and press key Enter:',
+                 '1. Add contact',
+                 '2. Find contact',
+                 '3. Show all contacts',
+                 '4. Remove contact',
+                 '5. Backup contact book',
+                 '6. Save contact book to disk',
+                 '7. Exit')
+
+    menu_text = '\n'.join(menu_text)
 
     print(welcome_text)
 
