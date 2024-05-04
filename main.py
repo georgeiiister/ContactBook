@@ -120,15 +120,25 @@ def add_contact() -> Contact:
                    contact_name=contact_name)
 
 
+def get_mark_print(len_obj: int) -> int:
+    mark_percent = 100 if len_obj <= 10 else 10
+    mark_print = int((len_obj * mark_percent) / 100)
+
+    return 1 if mark_print == 0 else mark_print
+
+
 def print_contacts(dict_contacts: dict) -> None:
     cnt_rows = 0
     if dict_contacts:
         list_contacts = sorted_dict_contacts(dict_contacts=dict_contacts)
+
+        mark_print = get_mark_print(len_obj=len(list_contacts))
+
         for contact_phone, contact in list_contacts:
-            cnt_rows += 1
-            if cnt_rows % 10 == 0:
-                input('Press any key to continue...')
             print(contact)
+            cnt_rows += 1
+            if cnt_rows % mark_print == 0:
+                input('Press any key to continue...')
     else:
         print('Contact book is empty!')
 
@@ -155,10 +165,19 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
         if not create_file_base(path_to_file_base=path_to_file_base):
             return tuple()
 
+    cnt_rows = 0
+    with open(path_to_file_base, 'r') as fb:
+        mark_print = get_mark_print(len_obj=sum(1 for i in fb))
+
     with open(path_to_file_base, 'r') as fb:
         for rec in fb:
             contact = rec.rstrip('\n').split(':')
             base_dict[contact[0]] = Contact(phone_number=contact[0], contact_name=contact[1])
+
+            cnt_rows += 1
+            if cnt_rows % mark_print == 0:
+                print(f'download {cnt_rows} rows...')
+
 
     return base_dict, path_to_file_base
 
@@ -172,9 +191,15 @@ def full_upload_dbase(dbase_dict: dict, path_to_file_base: pathlib.Path) -> None
         if not create_file_base(path_to_file_base=path_to_file_base):
             raise FileBaseNotCreated
 
+    cnt_rows = 0
+    mark_print = get_mark_print(len_obj=len(dbase_dict))
+
     with open(path_to_file_base, 'w') as fb:
         for phone_number, contact in dbase_dict.items():
             fb.write(contact.get_format_to_dbase() + '\n')
+            cnt_rows += 1
+            if cnt_rows % mark_print == 0:
+                print(f'upload {cnt_rows} rows...')
 
 
 def full_backup_dbase(dbase_dict: dict,
@@ -208,11 +233,11 @@ def main():
     6. Save contact book to disk
     7. Exit'''
 
+    print(welcome_text)
+
     action = 0
     contacts, cur_path_to_file_base = full_download_dbase()
     contacts_change = False
-
-    print(welcome_text)
 
     while True:
         print(menu_text)
@@ -255,7 +280,6 @@ def main():
 
                 if action == 3:
                     print_contacts(contacts)
-                    input('Press any key to continue...')
                     break
 
                 if action == 4:
