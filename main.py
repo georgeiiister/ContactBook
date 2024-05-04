@@ -92,7 +92,10 @@ class Contact:
         Contact.count_objects += 1
 
     def __str__(self):
-        return f'{self.phone_number}:{self.contact_name}'
+        return f'{self.contact_name}:{self.phone_number}'
+
+    def __repr__(self):
+        return f'Contact(contact_name={self.get_contact_name()}, phone_number={self.phone_number})'
 
     def __del__(self):
         Contact.count_objects -= 1
@@ -315,6 +318,7 @@ def main():
                 if action == 6:
                     if contacts_change:
                         full_upload_dbase(dbase_dict=contacts, path_to_file_base=cur_path_to_file_base)
+                        contacts_change=False
                     else:
                         print('There were no changes!')
                     input('Press any key to continue...')
