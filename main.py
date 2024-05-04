@@ -214,8 +214,14 @@ def full_backup_dbase(dbase_dict: dict,
 
     dict2json = {}
 
+    cnt_rows = 0
+    mark_print = get_mark_print(len_obj=len(dbase_dict))
+
     for phone_number, contact in dbase_dict.items():
         dict2json = {**dict2json, **contact.get_dict()}
+        cnt_rows += 1
+        if cnt_rows % mark_print == 0:
+            print(f'prepared {cnt_rows} rows...')
 
     with open(path_to_file_base, 'w') as fb:
         json.dump(dict2json, fb, indent=4)
