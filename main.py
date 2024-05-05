@@ -80,6 +80,9 @@ class Contact:
     def get_contact_name(self):
         return self.contact_name
 
+    def get_phone_number(self):
+        return self.phone_number
+
     def __init__(self, phone_number: str,
                  contact_name: str):
 
@@ -99,6 +102,12 @@ class Contact:
 
     def __del__(self):
         Contact.count_objects -= 1
+
+    def __len__(self):
+        return len(self.get_phone_number())
+
+    def __bool__(self):
+        return bool(self.get_phone_number())
 
 
 def sorted_dict_contacts(dict_contacts: dict) -> list:
