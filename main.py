@@ -132,8 +132,8 @@ def add_contact() -> Contact:
                    contact_name=contact_name)
 
 
-def get_mark_print(len_obj: int) -> int:
-    mark_percent = 100 if len_obj <= 10 else 10
+def get_mark_print(len_obj: int, num_of_lines: int = 10) -> int:
+    mark_percent = 100 if len_obj <= num_of_lines else num_of_lines
     mark_print = int((len_obj * mark_percent) / 100)
 
     return 1 if mark_print == 0 else mark_print
