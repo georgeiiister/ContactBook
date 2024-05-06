@@ -146,7 +146,7 @@ def print_contacts(dict_contacts: dict) -> None:
 
         mark_print = get_mark_print(len_obj=len(list_contacts))
 
-        for contact_phone, contact in list_contacts:
+        for _, contact in list_contacts:
             print(contact)
             cnt_rows += 1
             if cnt_rows % mark_print == 0:
@@ -207,7 +207,7 @@ def full_upload_dbase(dbase_dict: dict, path_to_file_base: pathlib.Path) -> None
     mark_print = get_mark_print(len_obj=len(dbase_dict))
 
     with open(path_to_file_base, 'w') as fb:
-        for phone_number, contact in dbase_dict.items():
+        for _, contact in dbase_dict.items():
             fb.write(contact.get_format_to_dbase() + '\n')
             cnt_rows += 1
             if cnt_rows % mark_print == 0:
@@ -229,7 +229,7 @@ def full_backup_dbase(dbase_dict: dict,
     cnt_rows = 0
     mark_print = get_mark_print(len_obj=len(dbase_dict))
 
-    for phone_number, contact in dbase_dict.items():
+    for _, contact in dbase_dict.items():
         dict2json = {**dict2json, **contact.get_dict()}
         cnt_rows += 1
         if cnt_rows % mark_print == 0:
