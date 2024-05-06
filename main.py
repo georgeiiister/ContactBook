@@ -179,7 +179,7 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
 
     cnt_rows = 0
     with open(path_to_file_base, 'r') as fb:
-        mark_print = get_mark_print(len_obj=sum(1 for i in fb))
+        mark_print = get_mark_print(len_obj=sum(1 for i in fb))  # count rows in file
 
     with open(path_to_file_base, 'r') as fb:
         for rec in fb:
@@ -189,7 +189,6 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
             cnt_rows += 1
             if cnt_rows % mark_print == 0:
                 print(f'download {cnt_rows} rows from file on disk')
-
 
     return base_dict, path_to_file_base
 
@@ -327,7 +326,7 @@ def main():
                 if action == 6:
                     if contacts_change:
                         full_upload_dbase(dbase_dict=contacts, path_to_file_base=cur_path_to_file_base)
-                        contacts_change=False
+                        contacts_change = False
                     else:
                         print('There were no changes!')
                     input('Press any key to continue...')
