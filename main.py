@@ -78,7 +78,7 @@ class Contact:
                 return False
 
     def get_format_to_dbase(self) -> str:
-        return (f'{self.phone_number}:{self.contact_name}:'
+        return (f'{self.phone_number};{self.contact_name};'
                 f'{self.date_time_creation_contact.strftime(Contact.get_mask_date_time_creation())}')
 
     def get_dict(self) -> dict:
@@ -107,7 +107,7 @@ class Contact:
         Contact.count_objects += 1
 
     def __str__(self):
-        return f'{self.contact_name}:{self.phone_number}'
+        return f'{self.contact_name} {self.phone_number}'
 
     def __repr__(self):
         return (f'Contact(contact_name={self.get_contact_name()}, phone_number={self.phone_number}, '
@@ -196,15 +196,18 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
             return tuple()
 
     cnt_rows = 0
+    cmask = Contact.get_mask_date_time_creation()
+
     with open(path_to_file_base, 'r') as fb:
         mark_print = get_mark_print(len_obj=sum(1 for i in fb))  # count rows in file
 
     with open(path_to_file_base, 'r') as fb:
         for rec in fb:
-            contact = rec.rstrip('\n').split(':')
+            contact = rec.rstrip('\n').split(';')
             base_dict[contact[0]] = Contact(phone_number=contact[0],
                                             contact_name=contact[1],
-                                            date_time_creation_contact=datetime.datetime.now())  # TODO
+                                            date_time_creation_contact=datetime.datetime.now())
+                                            # date_time_creation_contact=datetime.datetime.strptime(contact[2],cmask))
 
             cnt_rows += 1
             if cnt_rows % mark_print == 0:
