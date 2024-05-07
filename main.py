@@ -1,3 +1,4 @@
+import datetime
 import os
 import pathlib
 
@@ -32,6 +33,11 @@ class FileBaseNotCreated(Exception):
 
 class Contact:
     count_objects = 0
+    mask_date_time_creation = '%d.%m.%Y %H:%M:%S'
+
+    @staticmethod
+    def get_mask_date_time_creation():
+        return Contact.mask_date_time_creation
 
     @staticmethod
     def get_count() -> int:
@@ -72,7 +78,8 @@ class Contact:
                 return False
 
     def get_format_to_dbase(self) -> str:
-        return f'{self.phone_number}:{self.contact_name}'
+        return (f'{self.phone_number}:{self.contact_name}:'
+                f'{self.date_time_creation_contact.strftime(Contact.get_mask_date_time_creation())}')
 
     def get_dict(self) -> dict:
         return {self.phone_number: {'phone_number': self.phone_number, 'contact_name': self.contact_name}}
@@ -83,14 +90,19 @@ class Contact:
     def get_phone_number(self):
         return self.phone_number
 
+    def get_date_time_creation_contact(self) -> datetime.datetime:
+        return self.date_time_creation_contact
+
     def __init__(self, phone_number: str,
-                 contact_name: str):
+                 contact_name: str,
+                 date_time_creation_contact: datetime.datetime):
 
         Contact.validate_contact_name(contact_name=contact_name)
         Contact.validate_phone_number(phone_number=phone_number)
 
         self.phone_number = phone_number
         self.contact_name = contact_name
+        self.date_time_creation_contact = date_time_creation_contact
 
         Contact.count_objects += 1
 
@@ -98,7 +110,8 @@ class Contact:
         return f'{self.contact_name}:{self.phone_number}'
 
     def __repr__(self):
-        return f'Contact(contact_name={self.get_contact_name()}, phone_number={self.phone_number})'
+        return (f'Contact(contact_name={self.get_contact_name()}, phone_number={self.phone_number}, '
+                f'date_time_creation_contact={self.date_time_creation_contact})')
 
     def __del__(self):
         Contact.count_objects -= 1
@@ -129,11 +142,11 @@ def add_contact() -> Contact:
     phone_number = input(f'Please, input phone number for {contact_name}>> ')
 
     return Contact(phone_number=phone_number,
-                   contact_name=contact_name)
+                   contact_name=contact_name,
+                   date_time_creation_contact=datetime.datetime.now())
 
 
 def get_mark_print(len_obj: int, num_of_lines: int = 10) -> int:
-
     if len_obj <= num_of_lines:
         mark_percent = 100
     else:
@@ -189,7 +202,9 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
     with open(path_to_file_base, 'r') as fb:
         for rec in fb:
             contact = rec.rstrip('\n').split(':')
-            base_dict[contact[0]] = Contact(phone_number=contact[0], contact_name=contact[1])
+            base_dict[contact[0]] = Contact(phone_number=contact[0],
+                                            contact_name=contact[1],
+                                            date_time_creation_contact=datetime.datetime.now())  # TODO
 
             cnt_rows += 1
             if cnt_rows % mark_print == 0:
