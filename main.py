@@ -145,21 +145,13 @@ def find_contact(dict_contacts: dict,
     return dict_contacts.get(phone_number)
 
 
-def add_contact() -> Contact | None:
+def create_contact() -> Contact:
     contact_name = input('Please, input contact name>> ')
     phone_number = input(f'Please, input phone number for {contact_name}>> ')
 
-    obj = Contact(phone_number=phone_number,
+    return Contact(phone_number=phone_number,
                   contact_name=contact_name,
                   date_time_creation_contact=datetime.datetime.now())
-
-    find_obj = find_contact(dict_contacts=obj.get_dict(),
-                            phone_number=obj.get_phone_number())
-
-    if find_obj is None:
-        return obj
-    else:
-        pass  # TODO add Q
 
 
 def get_mark_print(len_obj: int, num_of_lines: int = 10) -> int:
@@ -318,10 +310,9 @@ def main():
             while True:
                 if action == 1:
                     try:
-                        contact = add_contact()
-                        if contact is not None:  # TODO edit?
-                            contacts[contact.phone_number] = contact
-                            contacts_change = True
+                        contact = create_contact()
+                        contacts[contact.phone_number] = contact
+                        contacts_change = True
                         raise ExitInMainMenu
                     except (NoVerifiedContactName, NoVerifiedPhoneNumber, ExitInMainMenu):
                         if input('Add another? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
