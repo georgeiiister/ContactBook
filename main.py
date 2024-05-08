@@ -125,6 +125,7 @@ class Contact:
     def __eq__(self, other):
         return self.get_phone_number() == other.get_phone_number()
 
+
 def sorted_dict_contacts(dict_contacts: dict) -> list:
     list_contacts = sorted(dict_contacts.items(), key=lambda i: i[1].get_contact_name())
     return list_contacts
@@ -139,13 +140,26 @@ def decorator_args_kwargs_print(func):
     return wrapper
 
 
-def add_contact() -> Contact:
+def find_contact(dict_contacts: dict,
+                 phone_number: str) -> Contact | None:
+    return dict_contacts.get(phone_number)
+
+
+def add_contact() -> Contact | None:
     contact_name = input('Please, input contact name>> ')
     phone_number = input(f'Please, input phone number for {contact_name}>> ')
 
-    return Contact(phone_number=phone_number,
-                   contact_name=contact_name,
-                   date_time_creation_contact=datetime.datetime.now())
+    obj = Contact(phone_number=phone_number,
+                  contact_name=contact_name,
+                  date_time_creation_contact=datetime.datetime.now())
+
+    find_obj = find_contact(dict_contacts=obj.get_dict(),
+                            phone_number=obj.get_phone_number())
+
+    if find_obj is None:
+        return obj
+    else:
+        pass  # TODO add Q
 
 
 def get_mark_print(len_obj: int, num_of_lines: int = 10) -> int:
@@ -173,11 +187,6 @@ def print_contacts(dict_contacts: dict) -> None:
         print('Contact book is empty!')
 
 
-def find_contact(dict_contacts: dict,
-                 phone_number: str) -> Contact | None:
-    return dict_contacts.get(phone_number)
-
-
 def create_file_base(path_to_file_base: pathlib.Path) -> bool | None:
     with open(path_to_file_base, 'w') as fb:
         pass
@@ -199,7 +208,7 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
     mask = Contact.get_mask_date_time_creation()
 
     with open(path_to_file_base, 'r') as fb:
-        len_fb = len_obj=sum(1 for i in fb)
+        len_fb = len_obj = sum(1 for i in fb)
         mark_print = get_mark_print(len_fb)  # count rows in file
 
     with open(path_to_file_base, 'r') as fb:
@@ -310,8 +319,9 @@ def main():
                 if action == 1:
                     try:
                         contact = add_contact()
-                        contacts[contact.phone_number] = contact
-                        contacts_change = True
+                        if contact is not None:  # TODO edit?
+                            contacts[contact.phone_number] = contact
+                            contacts_change = True
                         raise ExitInMainMenu
                     except (NoVerifiedContactName, NoVerifiedPhoneNumber, ExitInMainMenu):
                         if input('Add another? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
