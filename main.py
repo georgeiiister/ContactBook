@@ -122,6 +122,8 @@ class Contact:
     def __bool__(self):
         return bool(self.get_phone_number())
 
+    def __eq__(self, other):
+        return self.get_phone_number() == other.get_phone_number()
 
 def sorted_dict_contacts(dict_contacts: dict) -> list:
     list_contacts = sorted(dict_contacts.items(), key=lambda i: i[1].get_contact_name())
@@ -194,7 +196,7 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
             return tuple()
 
     cnt_rows = 0
-    cmask = Contact.get_mask_date_time_creation()
+    mask = Contact.get_mask_date_time_creation()
 
     with open(path_to_file_base, 'r') as fb:
         len_fb = len_obj=sum(1 for i in fb)
@@ -205,7 +207,7 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
             contact = rec.rstrip('\n').split(';')
             base_dict[contact[0]] = Contact(phone_number=contact[0],
                                             contact_name=contact[1],
-                                            date_time_creation_contact=datetime.datetime.strptime(contact[2], cmask))
+                                            date_time_creation_contact=datetime.datetime.strptime(contact[2], mask))
 
             cnt_rows += 1
             if (len_fb // mark_print) >= 2 and cnt_rows % mark_print == 0:
