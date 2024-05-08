@@ -197,7 +197,8 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
     cmask = Contact.get_mask_date_time_creation()
 
     with open(path_to_file_base, 'r') as fb:
-        mark_print = get_mark_print(len_obj=sum(1 for i in fb))  # count rows in file
+        len_fb = len_obj=sum(1 for i in fb)
+        mark_print = get_mark_print(len_fb)  # count rows in file
 
     with open(path_to_file_base, 'r') as fb:
         for rec in fb:
@@ -207,11 +208,11 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
                                             date_time_creation_contact=datetime.datetime.strptime(contact[2], cmask))
 
             cnt_rows += 1
-            if cnt_rows % mark_print == 0:
-                print(f'download {cnt_rows} rows from file with disk')
+            if (len_fb // mark_print) >= 2 and cnt_rows % mark_print == 0:
+                print(f'download {cnt_rows} rows')
 
     if cnt_rows > 0:
-        print(f'total download {cnt_rows} rows from file with disk')
+        print(f'total download {cnt_rows} rows')
 
     return base_dict, path_to_file_base
 
@@ -226,13 +227,14 @@ def full_upload_dbase(dbase_dict: dict, path_to_file_base: pathlib.Path) -> None
             raise FileBaseNotCreated
 
     cnt_rows = 0
-    mark_print = get_mark_print(len_obj=len(dbase_dict))
+    len_dbase_dict = len(dbase_dict)
+    mark_print = get_mark_print(len_obj=len_dbase_dict)
 
     with open(path_to_file_base, 'w') as fb:
         for _, contact in dbase_dict.items():
             fb.write(contact.get_format_to_dbase() + '\n')
             cnt_rows += 1
-            if cnt_rows % mark_print == 0:
+            if (len_dbase_dict // mark_print) >= 2 and cnt_rows % mark_print == 0:
                 print(f'upload {cnt_rows} rows...')
 
     if cnt_rows > 0:
@@ -252,12 +254,13 @@ def full_backup_dbase(dbase_dict: dict,
     dict2json = {}
 
     cnt_rows = 0
-    mark_print = get_mark_print(len_obj=len(dbase_dict))
+    len_dbase_dict = len(dbase_dict)
+    mark_print = get_mark_print(len_obj=len_dbase_dict)
 
     for _, contact in dbase_dict.items():
         dict2json = {**dict2json, **contact.get_dict()}
         cnt_rows += 1
-        if cnt_rows % mark_print == 0:
+        if (len_dbase_dict // mark_print) >= 2 and cnt_rows % mark_print == 0:
             print(f'prepared {cnt_rows} rows...')
 
     if cnt_rows > 0:
