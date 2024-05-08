@@ -31,6 +31,10 @@ class FileBaseNotCreated(Exception):
     pass
 
 
+class ContactExistInFileDBase(Exception):
+    pass
+
+
 class Contact:
     count_objects = 0
     mask_date_time_creation = '%d.%m.%Y %H:%M:%S'
@@ -311,11 +315,21 @@ def main():
                 if action == 1:
                     try:
                         contact = create_contact()
-                        contacts[contact.phone_number] = contact
-                        contacts_change = True
-                        raise ExitInMainMenu
+
+                        find_obj = find_contact(dict_contacts=contacts, phone_number=contact.get_phone_number())
+
+                        if find_obj is None:
+                            contacts[contact.phone_number] = contact
+                            contacts_change = True
+                            raise ExitInMainMenu
+                        else:
+                            raise ContactExistInFileDBase
                     except (NoVerifiedContactName, NoVerifiedPhoneNumber, ExitInMainMenu):
                         if input('Add another? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
+                            break
+                    except ContactExistInFileDBase:
+                        del contact
+                        if input('Contact exist! Repeat another? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                             break
                 if action == 2:
                     try:
