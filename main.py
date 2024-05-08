@@ -148,11 +148,9 @@ def add_contact() -> Contact:
 
 def get_mark_print(len_obj: int, num_of_lines: int = 10) -> int:
     if len_obj <= num_of_lines:
-        mark_percent = 100
+        mark_print = 100
     else:
-        mark_percent = num_of_lines
-
-    mark_print = int((len_obj * mark_percent) / 100)
+        mark_print = num_of_lines
 
     return 1 if mark_print == 0 else mark_print
 
@@ -206,17 +204,19 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
             contact = rec.rstrip('\n').split(';')
             base_dict[contact[0]] = Contact(phone_number=contact[0],
                                             contact_name=contact[1],
-                                            date_time_creation_contact=datetime.datetime.now())
-                                            # date_time_creation_contact=datetime.datetime.strptime(contact[2],cmask))
+                                            date_time_creation_contact=datetime.datetime.strptime(contact[2], cmask))
 
             cnt_rows += 1
             if cnt_rows % mark_print == 0:
-                print(f'download {cnt_rows} rows from file on disk')
+                print(f'download {cnt_rows} rows from file with disk')
+
+    if cnt_rows > 0:
+        print(f'total download {cnt_rows} rows from file with disk')
 
     return base_dict, path_to_file_base
 
 
-#@decorator_args_kwargs_print
+# @decorator_args_kwargs_print
 def full_upload_dbase(dbase_dict: dict, path_to_file_base: pathlib.Path) -> None:
     try:
         if not pathlib.Path(path_to_file_base).exists():
@@ -234,6 +234,9 @@ def full_upload_dbase(dbase_dict: dict, path_to_file_base: pathlib.Path) -> None
             cnt_rows += 1
             if cnt_rows % mark_print == 0:
                 print(f'upload {cnt_rows} rows...')
+
+    if cnt_rows > 0:
+        print(f'total upload {cnt_rows} rows...')
 
 
 def full_backup_dbase(dbase_dict: dict,
@@ -256,6 +259,9 @@ def full_backup_dbase(dbase_dict: dict,
         cnt_rows += 1
         if cnt_rows % mark_print == 0:
             print(f'prepared {cnt_rows} rows...')
+
+    if cnt_rows > 0:
+        print(f'total prepared {cnt_rows} rows...')
 
     with open(path_to_file_base, 'w') as fb:
         json.dump(dict2json, fb, indent=4)
