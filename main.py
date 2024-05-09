@@ -97,6 +97,9 @@ class Contact:
     def get_date_time_creation_contact(self) -> datetime.datetime:
         return self.date_time_creation_contact
 
+    def get_str_date_time_creation_contact(self) -> str:
+        return self.date_time_creation_contact.strftime(Contact.get_mask_date_time_creation())
+
     def __init__(self, phone_number: str,
                  contact_name: str,
                  date_time_creation_contact: datetime.datetime):
@@ -190,6 +193,9 @@ def print_contacts(dict_contacts: dict) -> None:
             cnt_rows += 1
             if cnt_rows % mark_print == 0:
                 input('Press any key to continue...')
+
+        if cnt_rows % mark_print != 0:
+            input('Output is finish. Press any key to continue...')
     else:
         print('Contact book is empty!')
 
@@ -343,8 +349,9 @@ def main():
                             break
                     except ContactExistInFileDBase:
                         del contact
-                        if input(
-                                'Contact exist! Repeat another? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
+                        if input(f'Contact exist! {find_obj} {find_obj.get_str_date_time_creation_contact()} '
+                                 f'Repeat another? ("Y" - Press any key / "N" - return main menu)>> '
+                                 ).upper() == 'N':
                             break
 
                 if action == 2:
@@ -358,7 +365,7 @@ def main():
                             if input('Repeat find? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                                 break
                     except ContactNotFound:
-                        if input('Sorry, contact not found. Repeat?'
+                        if input('Sorry, contact is not found. Repeat?'
                                  '("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                             break
 
@@ -373,6 +380,7 @@ def main():
                         if not contact:
                             raise ContactNotFound
                         else:
+                            print(f'This contact {contact} will be deleted!')
                             del contacts[contact.phone_number]
                             del contact
                             contacts_change = True
