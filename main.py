@@ -157,6 +157,12 @@ def create_contact() -> Contact:
                   contact_name=contact_name,
                   date_time_creation_contact=datetime.datetime.now())
 
+def edit_contact(contact: Contact) -> Contact:
+    contact_name = input('Please, input contact name>> ')
+
+    return Contact(phone_number=contact.get_phone_number(),
+                  contact_name=contact_name,
+                  date_time_creation_contact=datetime.datetime.now())
 
 def get_mark_print(len_obj: int, num_of_lines: int = 10) -> int:
     if len_obj <= num_of_lines:
@@ -285,9 +291,10 @@ def main():
                  '2. Find contact',
                  '3. Show all contacts',
                  '4. Remove contact',
-                 '5. Backup contact book',
-                 '6. Save contact book to disk',
-                 '7. Exit')
+                 '5. Edit contact',
+                 '6. Backup contact book',
+                 '7. Save contact book to disk',
+                 '8. Exit')
 
     menu_text = '\n'.join(menu_text)
 
@@ -303,10 +310,10 @@ def main():
 
         try:
             action = int(input('Select action and press the key Enter>> '))
-            if action not in (1, 2, 3, 4, 5, 6, 7):
+            if action not in (1, 2, 3, 4, 5, 6, 7, 8):
                 raise UnknownAction
 
-            if action == 7:
+            if action == 8:
                 if contacts_change:
                     if not input('You have made changes. Save to disk? '
                                  '("Y" - Press any key / "N" - exit without saving)>> ').upper() == 'N':
@@ -371,11 +378,26 @@ def main():
                             break
 
                 if action == 5:
+                    try:
+                        contact = find_contact(dict_contacts=contacts,
+                                               phone_number=input('Enter phone number for edit>> '))
+                        if not contact:
+                            raise ContactNotFound
+                        else:
+                            # TODO edit_contact()
+                            if input('Repeat edit? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
+                                break
+                    except ContactNotFound:
+                        if input('Sorry, contact not found. Repeat?'
+                                 '("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
+                            break
+
+                if action == 6:
                     full_backup_dbase(dbase_dict=contacts)
                     input('Backup done...')
                     break
 
-                if action == 6:
+                if action == 7:
                     if contacts_change:
                         full_upload_dbase(dbase_dict=contacts, path_to_file_base=cur_path_to_file_base)
                         contacts_change = False
