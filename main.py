@@ -298,7 +298,9 @@ def main():
     contacts_change = False
 
     while True:
+
         print(menu_text)
+
         try:
             action = int(input('Select action and press the key Enter>> '))
             if action not in (1, 2, 3, 4, 5, 6, 7):
@@ -331,6 +333,7 @@ def main():
                         del contact
                         if input('Contact exist! Repeat another? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                             break
+
                 if action == 2:
                     try:
                         contact = find_contact(dict_contacts=contacts,
@@ -378,6 +381,7 @@ def main():
                         contacts_change = False
                     else:
                         print('There were no changes!')
+
                     input('Press any key to continue...')
                     break
 
