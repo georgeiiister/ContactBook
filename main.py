@@ -154,18 +154,20 @@ def create_contact() -> Contact:
     phone_number = input(f'Please, input phone number for {contact_name}>> ')
 
     return Contact(phone_number=phone_number,
-                  contact_name=contact_name,
-                  date_time_creation_contact=datetime.datetime.now())
+                   contact_name=contact_name,
+                   date_time_creation_contact=datetime.datetime.now())
+
 
 def edit_contact(contact: Contact) -> Contact:
     contact_name = input(f'Please, input new contact name for "{contact.get_contact_name()}">> ')
     phone_number = contact.get_phone_number()
-    edit_contact = Contact(phone_number=phone_number,
-                           contact_name=contact_name,
-                           date_time_creation_contact=datetime.datetime.now())
+    new_contact = Contact(phone_number=phone_number,
+                          contact_name=contact_name,
+                          date_time_creation_contact=datetime.datetime.now())
 
     del contact
-    return edit_contact
+    return new_contact
+
 
 def get_mark_print(len_obj: int, num_of_lines: int = 10) -> int:
     if len_obj <= num_of_lines:
@@ -341,7 +343,8 @@ def main():
                             break
                     except ContactExistInFileDBase:
                         del contact
-                        if input('Contact exist! Repeat another? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
+                        if input(
+                                'Contact exist! Repeat another? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                             break
 
                 if action == 2:
