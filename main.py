@@ -158,7 +158,7 @@ def create_contact() -> Contact:
                   date_time_creation_contact=datetime.datetime.now())
 
 def edit_contact(contact: Contact) -> Contact:
-    contact_name = input('Please, input contact name>> ')
+    contact_name = input(f'Please, input new contact name for "{contact.get_contact_name()}">> ')
     phone_number = contact.get_phone_number()
     edit_contact = Contact(phone_number=phone_number,
                            contact_name=contact_name,
