@@ -159,10 +159,13 @@ def create_contact() -> Contact:
 
 def edit_contact(contact: Contact) -> Contact:
     contact_name = input('Please, input contact name>> ')
+    phone_number = contact.get_phone_number()
+    edit_contact = Contact(phone_number=phone_number,
+                           contact_name=contact_name,
+                           date_time_creation_contact=datetime.datetime.now())
 
-    return Contact(phone_number=contact.get_phone_number(),
-                  contact_name=contact_name,
-                  date_time_creation_contact=datetime.datetime.now())
+    del contact
+    return edit_contact
 
 def get_mark_print(len_obj: int, num_of_lines: int = 10) -> int:
     if len_obj <= num_of_lines:
@@ -384,9 +387,13 @@ def main():
                         if not contact:
                             raise ContactNotFound
                         else:
-                            # TODO edit_contact()
+                            contact = edit_contact(contact=contact)
+                            contacts[contact.phone_number] = contact
+                            contacts_change = True
+
                             if input('Repeat edit? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                                 break
+
                     except ContactNotFound:
                         if input('Sorry, contact not found. Repeat?'
                                  '("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
