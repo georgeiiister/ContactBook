@@ -36,16 +36,16 @@ class ContactExistInFileDBase(Exception):
 
 
 class Contact:
-    count_objects = 0
-    mask_date_time_creation = '%d.%m.%Y %H:%M:%S'
+    __count_objects = 0
+    __mask_date_time_creation = '%d.%m.%Y %H:%M:%S'
 
     @staticmethod
     def get_mask_date_time_creation():
-        return Contact.mask_date_time_creation
+        return Contact.__mask_date_time_creation
 
     @staticmethod
     def get_count() -> int:
-        return Contact.count_objects
+        return Contact.__count_objects
 
     @staticmethod
     def validate_contact_name(contact_name: str,
@@ -81,25 +81,6 @@ class Contact:
             else:
                 return False
 
-    def get_format_to_dbase(self) -> str:
-        return (f'{self.phone_number};{self.contact_name};'
-                f'{self.date_time_creation_contact.strftime(Contact.get_mask_date_time_creation())}')
-
-    def get_dict(self) -> dict:
-        return {self.phone_number: {'phone_number': self.phone_number, 'contact_name': self.contact_name}}
-
-    def get_contact_name(self):
-        return self.contact_name
-
-    def get_phone_number(self):
-        return self.phone_number
-
-    def get_date_time_creation_contact(self) -> datetime.datetime:
-        return self.date_time_creation_contact
-
-    def get_str_date_time_creation_contact(self) -> str:
-        return self.date_time_creation_contact.strftime(Contact.get_mask_date_time_creation())
-
     def __init__(self, phone_number: str,
                  contact_name: str,
                  date_time_creation_contact: datetime.datetime):
@@ -107,21 +88,21 @@ class Contact:
         Contact.validate_contact_name(contact_name=contact_name)
         Contact.validate_phone_number(phone_number=phone_number)
 
-        self.phone_number = phone_number
-        self.contact_name = contact_name
-        self.date_time_creation_contact = date_time_creation_contact
+        self.__phone_number = phone_number
+        self.__contact_name = contact_name
+        self.__date_time_creation_contact = date_time_creation_contact
 
-        Contact.count_objects += 1
+        Contact.__count_objects += 1
 
     def __str__(self):
-        return f'{self.contact_name} {self.phone_number}'
+        return f'{self.__contact_name} {self.__phone_number}'
 
     def __repr__(self):
-        return (f'Contact(contact_name={self.get_contact_name()}, phone_number={self.phone_number}, '
-                f'date_time_creation_contact={self.date_time_creation_contact})')
+        return (f'Contact(contact_name={self.get_contact_name()}, phone_number={self.get_phone_number()}, '
+                f'date_time_creation_contact={self.get_date_time_creation_contact()})')
 
     def __del__(self):
-        Contact.count_objects -= 1
+        Contact.__count_objects -= 1
 
     def __len__(self):
         return len(self.get_phone_number())
@@ -131,6 +112,26 @@ class Contact:
 
     def __eq__(self, other):
         return self.get_phone_number() == other.get_phone_number()
+
+    def get_contact_name(self):
+        return self.__contact_name
+
+    def get_phone_number(self):
+        return self.__phone_number
+
+    def get_date_time_creation_contact(self) -> datetime.datetime:
+        return self.__date_time_creation_contact
+
+    def get_str_date_time_creation_contact(self) -> str:
+        return self.get_date_time_creation_contact().strftime(Contact.get_mask_date_time_creation())
+
+    def get_format_to_dbase(self) -> str:
+        return (f'{self.get_phone_number()};{self.get_contact_name()};'
+                f'{self.get_str_date_time_creation_contact()}')
+
+    def get_dict(self) -> dict:
+        return {self.get_phone_number(): {'phone_number': self.get_phone_number(),
+                                          'contact_name': self.get_contact_name()}}
 
 
 def sorted_dict_contacts(dict_contacts: dict) -> list:
@@ -201,13 +202,12 @@ def print_contacts(dict_contacts: dict) -> None:
 
 
 def create_file_base(path_to_file_base: pathlib.Path) -> bool | None:
-    with open(path_to_file_base, 'w') as fb:
+    with open(path_to_file_base, 'w'):
         pass
     return True
 
 
 def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.sep + 'contact-book.dbase')) -> tuple:
-    contact = []
     base_dict = {}
 
     try:
@@ -221,7 +221,7 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
     mask = Contact.get_mask_date_time_creation()
 
     with open(path_to_file_base, 'r') as fb:
-        len_fb = len_obj = sum(1 for i in fb)
+        len_fb = sum(1 for _ in fb)
         mark_print = get_mark_print(len_fb)  # count rows in file
 
     with open(path_to_file_base, 'r') as fb:
@@ -305,14 +305,16 @@ def main():
                  '5. Edit contact',
                  '6. Backup contact book',
                  '7. Save contact book to disk',
-                 '8. Exit')
+                 '8. Exit',)
 
     menu_text = '\n'.join(menu_text)
 
     print(welcome_text)
 
-    action = 0
     contacts, cur_path_to_file_base = full_download_dbase()
+
+    assert cur_path_to_file_base  # check file db
+
     contacts_change = False
 
     while True:
@@ -321,7 +323,7 @@ def main():
 
         try:
             action = int(input('Select action and press the key Enter>> '))
-            if action not in (1, 2, 3, 4, 5, 6, 7, 8):
+            if action not in (range(1, 9)):
                 raise UnknownAction
 
             if action == 8:
@@ -339,7 +341,7 @@ def main():
                         find_obj = find_contact(dict_contacts=contacts, phone_number=contact.get_phone_number())
 
                         if find_obj is None:
-                            contacts[contact.phone_number] = contact
+                            contacts[contact.get_phone_number()] = contact
                             contacts_change = True
                             raise ExitInMainMenu
                         else:
@@ -361,7 +363,7 @@ def main():
                         if not contact:
                             raise ContactNotFound
                         else:
-                            print_contacts({contact.phone_number: contact})
+                            print_contacts({contact.get_phone_number(): contact})
                             if input('Repeat find? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                                 break
                     except ContactNotFound:
@@ -381,7 +383,7 @@ def main():
                             raise ContactNotFound
                         else:
                             print(f'This contact {contact} will be deleted!')
-                            del contacts[contact.phone_number]
+                            del contacts[contact.get_phone_number()]
                             del contact
                             contacts_change = True
                             if input('Repeat remove? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
@@ -399,7 +401,7 @@ def main():
                             raise ContactNotFound
                         else:
                             contact = edit_contact(contact=contact)
-                            contacts[contact.phone_number] = contact
+                            contacts[contact.get_phone_number()] = contact
                             contacts_change = True
 
                             if input('Repeat edit? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
