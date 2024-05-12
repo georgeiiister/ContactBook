@@ -319,7 +319,7 @@ def main():
 
     while True:
 
-        print(menu_text)
+        print(menu_text) # main menu
 
         try:
             action = int(input('Select action and press the key Enter>> '))
