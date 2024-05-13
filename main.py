@@ -3,35 +3,39 @@ import os
 import pathlib
 
 
-class UnknownAction(Exception):
+class ExceptionContactBook(Exception):
     pass
 
 
-class NoVerifiedContactName(Exception):
+class UnknownAction(ExceptionContactBook):
     pass
 
 
-class NoVerifiedPhoneNumber(Exception):
+class NoVerifiedContactName(ExceptionContactBook):
     pass
 
 
-class ExitInMainMenu(Exception):
+class NoVerifiedPhoneNumber(ExceptionContactBook):
     pass
 
 
-class ContactNotFound(Exception):
+class ExitInMainMenu(ExceptionContactBook):
     pass
 
 
-class FileBaseNotFound(Exception):
+class ContactNotFound(ExceptionContactBook):
     pass
 
 
-class FileBaseNotCreated(Exception):
+class FileBaseNotFound(ExceptionContactBook):
     pass
 
 
-class ContactExistInFileDBase(Exception):
+class FileBaseNotCreated(ExceptionContactBook):
+    pass
+
+
+class ContactExistInFileDBase(ExceptionContactBook):
     pass
 
 
