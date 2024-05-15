@@ -14,6 +14,7 @@ class UnknownAction(ExceptionContactBook):
 class NoVerifiedContactName(ExceptionContactBook):
     pass
 
+
 class NoneContactName(NoVerifiedContactName):
     pass
 
