@@ -14,8 +14,19 @@ class UnknownAction(ExceptionContactBook):
 class NoVerifiedContactName(ExceptionContactBook):
     pass
 
+class NoneContactName(NoVerifiedContactName):
+    pass
+
 
 class NoVerifiedPhoneNumber(ExceptionContactBook):
+    pass
+
+
+class NonePhoneNumber(NoVerifiedPhoneNumber):
+    pass
+
+
+class NoVerifiedPhoneNumberOnOnlyDigits(NoVerifiedPhoneNumber):
     pass
 
 
@@ -77,10 +88,14 @@ class Contact(object):
 
             if not phone_number:
                 raise NoVerifiedPhoneNumber
-            else:
-                return True
 
-        except NoVerifiedPhoneNumber:
+            _ = phone_number[1:] if phone_number.startswith('+') else phone_number
+            import string
+            if tuple(filter(lambda i: not (i in string.digits), _)):
+                raise NoVerifiedPhoneNumberOnOnlyDigits
+            return True
+
+        except (NoVerifiedPhoneNumber, NoVerifiedPhoneNumberOnOnlyDigits, NonePhoneNumber):
             if raise_error:
                 print('Sorry, you phone number not valid')
                 raise
@@ -244,7 +259,8 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
             contact = rec.rstrip('\n').split(';')
             base_dict[contact[0]] = Contact(phone_number=contact[0],
                                             contact_name=contact[1],
-                                            date_time_creation_contact=datetime.datetime.strptime(contact[2], mask))
+                                            date_time_creation_contact=datetime.datetime.strptime(contact[2], mask),
+                                            validate=False)
 
             cnt_rows += 1
             if (len_fb // mark_print) >= 2 and cnt_rows % mark_print == 0:
