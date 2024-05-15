@@ -3,6 +3,7 @@ import os
 import pathlib
 
 
+
 class ExceptionContactBook(Exception):
     pass
 
