@@ -39,20 +39,22 @@ class ContactExistInFileDBase(ExceptionContactBook):
     pass
 
 
-class Contact:
+class Contact(object):
     __count_objects = 0
     __mask_date_time_creation = '%d.%m.%Y %H:%M:%S'
 
-    @staticmethod
-    def get_mask_date_time_creation():
+    @classmethod
+    def mask_date_time_creation(cls):
         return Contact.__mask_date_time_creation
 
-    @staticmethod
-    def get_count() -> int:
+    @classmethod
+    @property
+    def count(cls) -> int:
         return Contact.__count_objects
 
-    @staticmethod
-    def validate_contact_name(contact_name: str,
+    @classmethod
+    def validate_contact_name(cls,
+                              contact_name: str,
                               raise_error=True) -> bool:
         try:
 
@@ -68,8 +70,9 @@ class Contact:
             else:
                 return False
 
-    @staticmethod
-    def validate_phone_number(phone_number: str,
+    @classmethod
+    def validate_phone_number(cls,
+                              phone_number: str,
                               raise_error=True) -> bool:
         try:
 
@@ -85,12 +88,15 @@ class Contact:
             else:
                 return False
 
-    def __init__(self, phone_number: str,
+    def __init__(self,
+                 phone_number: str,
                  contact_name: str,
-                 date_time_creation_contact: datetime.datetime):
+                 date_time_creation_contact: datetime.datetime,
+                 validate=True):
 
-        Contact.validate_contact_name(contact_name=contact_name)
-        Contact.validate_phone_number(phone_number=phone_number)
+        if validate:
+            Contact.validate_contact_name(contact_name=contact_name)
+            Contact.validate_phone_number(phone_number=phone_number)
 
         self.__phone_number = phone_number
         self.__contact_name = contact_name
@@ -127,7 +133,7 @@ class Contact:
         return self.__date_time_creation_contact
 
     def get_str_date_time_creation_contact(self) -> str:
-        return self.get_date_time_creation_contact().strftime(Contact.get_mask_date_time_creation())
+        return self.get_date_time_creation_contact().strftime(Contact.mask_date_time_creation())
 
     def get_format_to_dbase(self) -> str:
         return (f'{self.get_phone_number()};{self.get_contact_name()};'
@@ -159,11 +165,15 @@ def find_contact(dict_contacts: dict,
 
 def create_contact() -> Contact:
     contact_name = input('Please, input contact name>> ')
+    Contact.validate_contact_name(contact_name=contact_name)
+
     phone_number = input(f'Please, input phone number for {contact_name}>> ')
+    Contact.validate_phone_number(phone_number=phone_number)
 
     return Contact(phone_number=phone_number,
                    contact_name=contact_name,
-                   date_time_creation_contact=datetime.datetime.now())
+                   date_time_creation_contact=datetime.datetime.now(),
+                   validate=False)
 
 
 def edit_contact(contact: Contact) -> Contact:
@@ -222,7 +232,7 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
             return tuple()
 
     cnt_rows = 0
-    mask = Contact.get_mask_date_time_creation()
+    mask = Contact.mask_date_time_creation()
 
     with open(path_to_file_base, 'r') as fb:
         len_fb = sum(1 for _ in fb)
