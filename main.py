@@ -45,12 +45,11 @@ class Contact(object):
 
     @classmethod
     def mask_date_time_creation(cls):
-        return Contact.__mask_date_time_creation
+        return cls.__mask_date_time_creation
 
     @classmethod
-    @property
     def count(cls) -> int:
-        return Contact.__count_objects
+        return cls.__count_objects
 
     @classmethod
     def validate_contact_name(cls,
@@ -108,25 +107,27 @@ class Contact(object):
         return f'{self.__contact_name} {self.__phone_number}'
 
     def __repr__(self):
-        return (f'Contact(contact_name={self.get_contact_name()}, phone_number={self.get_phone_number()}, '
+        return (f'Contact(contact_name={self.contact_name}, phone_number={self.phone_number}, '
                 f'date_time_creation_contact={self.get_date_time_creation_contact()})')
 
     def __del__(self):
         Contact.__count_objects -= 1
 
     def __len__(self):
-        return len(self.get_phone_number())
+        return len(self.phone_number)
 
     def __bool__(self):
-        return bool(self.get_phone_number())
+        return bool(self.phone_number)
 
     def __eq__(self, other):
-        return self.get_phone_number() == other.get_phone_number()
+        return self.phone_number == other.phone_number
 
-    def get_contact_name(self):
+    @property
+    def contact_name(self):
         return self.__contact_name
 
-    def get_phone_number(self):
+    @property
+    def phone_number(self):
         return self.__phone_number
 
     def get_date_time_creation_contact(self) -> datetime.datetime:
@@ -136,16 +137,16 @@ class Contact(object):
         return self.get_date_time_creation_contact().strftime(Contact.mask_date_time_creation())
 
     def get_format_to_dbase(self) -> str:
-        return (f'{self.get_phone_number()};{self.get_contact_name()};'
+        return (f'{self.phone_number};{self.contact_name};'
                 f'{self.get_str_date_time_creation_contact()}')
 
     def get_dict(self) -> dict:
-        return {self.get_phone_number(): {'phone_number': self.get_phone_number(),
-                                          'contact_name': self.get_contact_name()}}
+        return {self.phone_number: {'phone_number': self.phone_number,
+                                    'contact_name': self.contact_name}}
 
 
 def sorted_dict_contacts(dict_contacts: dict) -> list:
-    list_contacts = sorted(dict_contacts.items(), key=lambda i: i[1].get_contact_name())
+    list_contacts = sorted(dict_contacts.items(), key=lambda i: i[1].contact_name)
     return list_contacts
 
 
@@ -177,8 +178,8 @@ def create_contact() -> Contact:
 
 
 def edit_contact(contact: Contact) -> Contact:
-    contact_name = input(f'Please, input new contact name for "{contact.get_contact_name()}">> ')
-    phone_number = contact.get_phone_number()
+    contact_name = input(f'Please, input new contact name for "{contact.contact_name}">> ')
+    phone_number = contact.phone_number
     new_contact = Contact(phone_number=phone_number,
                           contact_name=contact_name,
                           date_time_creation_contact=datetime.datetime.now())
@@ -352,10 +353,10 @@ def main():
                     try:
                         contact = create_contact()
 
-                        find_obj = find_contact(dict_contacts=contacts, phone_number=contact.get_phone_number())
+                        find_obj = find_contact(dict_contacts=contacts, phone_number=contact.phone_number)
 
                         if find_obj is None:
-                            contacts[contact.get_phone_number()] = contact
+                            contacts[contact.phone_number] = contact
                             contacts_change = True
                             raise ExitInMainMenu
                         else:
@@ -377,7 +378,7 @@ def main():
                         if not contact:
                             raise ContactNotFound
                         else:
-                            print_contacts({contact.get_phone_number(): contact})
+                            print_contacts({contact.phone_number: contact})
                             if input('Repeat find? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                                 break
                     except ContactNotFound:
@@ -397,7 +398,7 @@ def main():
                             raise ContactNotFound
                         else:
                             print(f'This contact {contact} will be deleted!')
-                            del contacts[contact.get_phone_number()]
+                            del contacts[contact.phone_number]
                             del contact
                             contacts_change = True
                             if input('Repeat remove? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
@@ -415,7 +416,7 @@ def main():
                             raise ContactNotFound
                         else:
                             contact = edit_contact(contact=contact)
-                            contacts[contact.get_phone_number()] = contact
+                            contacts[contact.phone_number] = contact
                             contacts_change = True
 
                             if input('Repeat edit? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
