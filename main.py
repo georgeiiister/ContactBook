@@ -176,7 +176,7 @@ def decorator_args_kwargs_print(func):
     return wrapper
 
 
-def find_contact(dict_contacts: dict,
+def find_contact_by_phone(dict_contacts: dict,
                  phone_number: str) -> Contact | None:
     return dict_contacts.get(phone_number)
 
@@ -332,7 +332,7 @@ def main():
 
     menu_text = ('Select on action (enter number) and press key Enter:',
                  '1. Add contact',
-                 '2. Find contact',
+                 '2. Find contact by phone number',
                  '3. Show all contacts',
                  '4. Remove contact',
                  '5. Edit contact',
@@ -371,7 +371,7 @@ def main():
                     try:
                         contact = create_contact()
 
-                        find_obj = find_contact(dict_contacts=contacts, phone_number=contact.phone_number)
+                        find_obj = find_contact_by_phone(dict_contacts=contacts, phone_number=contact.phone_number)
 
                         if find_obj is None:
                             contacts[contact.phone_number] = contact
@@ -391,7 +391,7 @@ def main():
 
                 if action == 2:
                     try:
-                        contact = find_contact(dict_contacts=contacts,
+                        contact = find_contact_by_phone_phone(dict_contacts=contacts,
                                                phone_number=input('Enter phone number for find>> '))
                         if not contact:
                             raise ContactNotFound
@@ -410,7 +410,7 @@ def main():
 
                 if action == 4:
                     try:
-                        contact = find_contact(dict_contacts=contacts,
+                        contact = find_contact_by_phone(dict_contacts=contacts,
                                                phone_number=input('Enter phone number for remove>> '))
                         if not contact:
                             raise ContactNotFound
@@ -428,7 +428,7 @@ def main():
 
                 if action == 5:
                     try:
-                        contact = find_contact(dict_contacts=contacts,
+                        contact = find_contact_by_phone(dict_contacts=contacts,
                                                phone_number=input('Enter phone number for edit>> '))
                         if not contact:
                             raise ContactNotFound
