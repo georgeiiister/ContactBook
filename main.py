@@ -192,10 +192,10 @@ def find_contact_by_name(dict_contacts: dict,
 def find_contact_by_name_(names_dict: dict,
                           dict_contacts: dict,
                           contact_name: str) -> tuple:
+
     _ = names_dict.get(contact_name.upper())
 
     if _ is None:
-        _ = ()
         _ = find_contact_by_name(dict_contacts=dict_contacts,
                                  contact_name=contact_name)
     return _
