@@ -189,6 +189,18 @@ def find_contact_by_name(dict_contacts: dict,
     return _
 
 
+def find_contact_by_name_(names_dict: dict,
+                          dict_contacts: dict,
+                          contact_name: str) -> tuple:
+    _ = names_dict.get(contact_name.upper())
+
+    if _ is None:
+        _ = ()
+        _ = find_contact_by_name(dict_contacts=dict_contacts,
+                                 contact_name=contact_name)
+    return _
+
+
 def create_contact() -> Contact:
     contact_name = input('Please, input contact name>> ')
     Contact.validate_contact_name(contact_name=contact_name)
@@ -424,10 +436,12 @@ def main():
                                 contact = find_contact_by_phone(dict_contacts=contacts,
                                                                 phone_number=input('Enter phone number for search>> '))
                             case 2:
-                                names = create_cash_names(dict_contacts=contacts)
+                                if not names:
+                                    names = create_cash_names(dict_contacts=contacts)
 
-                                contact = find_contact_by_name(dict_contacts=contacts,
-                                                               contact_name=input('Enter name for search>> '))
+                                contact = find_contact_by_name_(names_dict=names,
+                                                                dict_contacts=contacts,
+                                                                contact_name=input('Enter name for search>> '))
                             case _:
                                 contact = None
 
