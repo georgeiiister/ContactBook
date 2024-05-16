@@ -282,6 +282,20 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
     return base_dict, path_to_file_base
 
 
+def create_cash_names(dict_contacts: dict) -> dict:
+    names_dict = {}
+
+    for obj in dict_contacts.values():
+        _ = ''
+        for i in obj.contact_name:
+            _ += i.upper()
+            if names_dict.get(_):
+                names_dict[_] = names_dict[_] + (obj,)
+            else:
+                names_dict[_] = (obj,)
+    return names_dict
+
+
 # @decorator_args_kwargs_print
 def full_upload_dbase(dbase_dict: dict, path_to_file_base: pathlib.Path) -> None:
     try:
@@ -353,6 +367,7 @@ def main():
     print(welcome_text)
 
     contacts, cur_path_to_file_base = full_download_dbase()
+    names = {}
 
     assert cur_path_to_file_base  # check file db
 
@@ -409,6 +424,8 @@ def main():
                                 contact = find_contact_by_phone(dict_contacts=contacts,
                                                                 phone_number=input('Enter phone number for search>> '))
                             case 2:
+                                names = create_cash_names(dict_contacts=contacts)
+
                                 contact = find_contact_by_name(dict_contacts=contacts,
                                                                contact_name=input('Enter name for search>> '))
                             case _:
