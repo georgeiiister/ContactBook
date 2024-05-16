@@ -3,7 +3,6 @@ import os
 import pathlib
 
 
-
 class ExceptionContactBook(Exception):
     pass
 
@@ -177,8 +176,17 @@ def decorator_args_kwargs_print(func):
 
 
 def find_contact_by_phone(dict_contacts: dict,
-                 phone_number: str) -> Contact | None:
-    return dict_contacts.get(phone_number)
+                          phone_number: str) -> tuple:
+    return (dict_contacts.get(phone_number),)
+
+
+def find_contact_by_name(dict_contacts: dict,
+                         contact_name: str) -> tuple:
+    _ = ()
+    for obj in dict_contacts.values():
+        if obj.contact_name.upper().find(contact_name.upper()) >= 0:
+            _ += (obj,)
+    return _
 
 
 def create_contact() -> Contact:
@@ -332,7 +340,7 @@ def main():
 
     menu_text = ('Select on action (enter number) and press key Enter:',
                  '1. Add contact',
-                 '2. Find contact by phone number',
+                 '2. Find contact',
                  '3. Show all contacts',
                  '4. Remove contact',
                  '5. Edit contact',
@@ -373,7 +381,7 @@ def main():
 
                         find_obj = find_contact_by_phone(dict_contacts=contacts, phone_number=contact.phone_number)
 
-                        if find_obj is None:
+                        if not find_obj:
                             contacts[contact.phone_number] = contact
                             contacts_change = True
                             raise ExitInMainMenu
@@ -384,23 +392,42 @@ def main():
                             break
                     except ContactExistInFileDBase:
                         del contact
-                        if input(f'Contact exist! {find_obj} {find_obj.get_str_date_time_creation_contact()} '
+                        if input(f'Contact exist! {find_obj[0]} {find_obj[0].get_str_date_time_creation_contact()} '
                                  f'Repeat another? ("Y" - Press any key / "N" - return main menu)>> '
                                  ).upper() == 'N':
                             break
 
                 if action == 2:
                     try:
-                        contact = find_contact_by_phone_phone(dict_contacts=contacts,
-                                               phone_number=input('Enter phone number for find>> '))
+                        search_type = int(input('1 - find by phone, 2 - find by contact name>> '))
+
+                        if search_type not in range(1, 3):
+                            raise UnknownAction
+
+                        match search_type:
+                            case 1:
+                                contact = find_contact_by_phone(dict_contacts=contacts,
+                                                                phone_number=input('Enter phone number for search>> '))
+                            case 2:
+                                contact = find_contact_by_name(dict_contacts=contacts,
+                                                               contact_name=input('Enter name for search>> '))
+                            case _:
+                                contact = None
+
                         if not contact:
                             raise ContactNotFound
                         else:
-                            print_contacts({contact.phone_number: contact})
+                            _ = {i.phone_number: i for i in contact}
+                            print_contacts(_)
                             if input('Repeat find? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                                 break
                     except ContactNotFound:
                         if input('Sorry, contact is not found. Repeat?'
+                                 '("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
+                            break
+
+                    except (UnknownAction, ValueError):
+                        if input('Sorry, you select unknown action. Repeat?'
                                  '("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                             break
 
@@ -411,13 +438,14 @@ def main():
                 if action == 4:
                     try:
                         contact = find_contact_by_phone(dict_contacts=contacts,
-                                               phone_number=input('Enter phone number for remove>> '))
+                                                        phone_number=input('Enter phone number for remove>> '))
                         if not contact:
                             raise ContactNotFound
                         else:
-                            print(f'This contact {contact} will be deleted!')
-                            del contacts[contact.phone_number]
-                            del contact
+                            print(f'This contact {str(contact)} will be deleted!')
+                            del contacts[contact[0].phone_number]
+                            for i in contact:
+                                del i
                             contacts_change = True
                             if input('Repeat remove? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                                 break
@@ -429,11 +457,11 @@ def main():
                 if action == 5:
                     try:
                         contact = find_contact_by_phone(dict_contacts=contacts,
-                                               phone_number=input('Enter phone number for edit>> '))
+                                                        phone_number=input('Enter phone number for edit>> '))
                         if not contact:
                             raise ContactNotFound
                         else:
-                            contact = edit_contact(contact=contact)
+                            contact = edit_contact(contact=contact[0])
                             contacts[contact.phone_number] = contact
                             contacts_change = True
 
