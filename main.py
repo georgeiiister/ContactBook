@@ -161,6 +161,40 @@ class Contact(object):
                                     'contact_name': self.contact_name}}
 
 
+class ContactMr(Contact):
+    @classmethod
+    def title(cls):
+        return 'Mr'
+
+    def __init__(self,
+                 phone_number: str,
+                 contact_name: str,
+                 date_time_creation_contact: datetime.datetime,
+                 validate):
+        super().__init__(phone_number=phone_number,
+                         contact_name=contact_name,
+                         date_time_creation_contact=date_time_creation_contact,
+                         validate=validate
+                         )
+
+
+class ContactMs(Contact):
+    @classmethod
+    def title(cls):
+        return 'Ms'
+
+    def __init__(self,
+                 phone_number: str,
+                 contact_name: str,
+                 date_time_creation_contact: datetime.datetime,
+                 validate):
+        super().__init__(phone_number=phone_number,
+                         contact_name=contact_name,
+                         date_time_creation_contact=date_time_creation_contact,
+                         validate=validate
+                         )
+
+
 def sorted_dict_contacts(dict_contacts: dict) -> list:
     list_contacts = sorted(dict_contacts.items(), key=lambda i: i[1].contact_name)
     return list_contacts
@@ -192,7 +226,6 @@ def find_contact_by_name(dict_contacts: dict,
 def find_contact_by_name_(names_dict: dict,
                           dict_contacts: dict,
                           contact_name: str) -> tuple:
-
     _ = names_dict.get(contact_name.upper())
 
     if _ is None:
