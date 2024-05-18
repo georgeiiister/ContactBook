@@ -2,6 +2,12 @@ import datetime
 import os
 import pathlib
 
+tuning_dict: dict = dict(sep_in_dbase=';',
+                         welcome_text='Welcome to you contact book!',
+                         num_of_lines=10,
+                         mark_print=100,
+                         )
+
 
 class ExceptionContactBook(Exception):
     pass
@@ -98,7 +104,7 @@ class Contact(object):
 
         except (NoVerifiedPhoneNumber, NoVerifiedPhoneNumberOnOnlyDigits, NonePhoneNumber):
             if raise_error:
-                print('Sorry, you phone number not valid')
+                print(f'Sorry, you phone number not valid {phone_number}')
                 raise
             else:
                 return False
@@ -106,7 +112,7 @@ class Contact(object):
     def __init__(self,
                  phone_number: str,
                  contact_name: str,
-                 date_time_creation_contact: datetime.datetime,
+                 date_time_creation_contact=datetime.datetime.now(),
                  validate=True):
 
         if validate:
@@ -243,7 +249,6 @@ def create_contact() -> Contact:
 
     return Contact(phone_number=phone_number,
                    contact_name=contact_name,
-                   date_time_creation_contact=datetime.datetime.now(),
                    validate=False)
 
 
@@ -251,16 +256,15 @@ def edit_contact(contact: Contact) -> Contact:
     contact_name = input(f'Please, input new contact name for "{contact.contact_name}">> ')
     phone_number = contact.phone_number
     new_contact = Contact(phone_number=phone_number,
-                          contact_name=contact_name,
-                          date_time_creation_contact=datetime.datetime.now())
+                          contact_name=contact_name)
 
     del contact
     return new_contact
 
 
-def get_mark_print(len_obj: int, num_of_lines: int = 10) -> int:
+def get_mark_print(len_obj: int, num_of_lines: int = tuning_dict['num_of_lines']) -> int:
     if len_obj <= num_of_lines:
-        mark_print = 100
+        mark_print: int = tuning_dict['mark_print']
     else:
         mark_print = num_of_lines
 
@@ -268,7 +272,7 @@ def get_mark_print(len_obj: int, num_of_lines: int = 10) -> int:
 
 
 def print_contacts(dict_contacts: dict) -> None:
-    cnt_rows = 0
+    cnt_rows: int = 0
     if dict_contacts:
         list_contacts = sorted_dict_contacts(dict_contacts=dict_contacts)
 
@@ -292,8 +296,9 @@ def create_file_base(path_to_file_base: pathlib.Path) -> bool | None:
     return True
 
 
-def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.sep + 'contact-book.dbase')) -> tuple:
-    base_dict = {}
+def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.sep + 'contact-book.dbase'),
+                        mark_print=None) -> tuple:
+    base_dict: dict = {}
 
     try:
         if not pathlib.Path(path_to_file_base).exists():
@@ -302,16 +307,17 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
         if not create_file_base(path_to_file_base=path_to_file_base):
             return tuple()
 
-    cnt_rows = 0
+    cnt_rows: int = 0
     mask = Contact.mask_date_time_creation()
 
     with open(path_to_file_base, 'r') as fb:
         len_fb = sum(1 for _ in fb)
-        mark_print = get_mark_print(len_fb)  # count rows in file
+        if mark_print is None:
+            mark_print = get_mark_print(len_fb)  # count rows in file
 
     with open(path_to_file_base, 'r') as fb:
         for rec in fb:
-            contact = rec.rstrip('\n').split(';')
+            contact = rec.rstrip('\n').split(tuning_dict['sep_in_dbase'])  # it's tuning
             base_dict[contact[0]] = Contact(phone_number=contact[0],
                                             contact_name=contact[1],
                                             date_time_creation_contact=datetime.datetime.strptime(contact[2], mask),
@@ -328,7 +334,7 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
 
 
 def create_cash_names(dict_contacts: dict) -> dict:
-    names_dict = {}
+    names_dict: dict = {}
 
     for obj in dict_contacts.values():
         _ = ''
@@ -342,7 +348,10 @@ def create_cash_names(dict_contacts: dict) -> dict:
 
 
 # @decorator_args_kwargs_print
-def full_upload_dbase(dbase_dict: dict, path_to_file_base: pathlib.Path) -> None:
+def full_upload_dbase(dbase_dict: dict,
+                      path_to_file_base: pathlib.Path,
+                      mark_print=None
+                      ) -> None:
     try:
         if not pathlib.Path(path_to_file_base).exists():
             raise FileBaseNotFound
@@ -352,7 +361,9 @@ def full_upload_dbase(dbase_dict: dict, path_to_file_base: pathlib.Path) -> None
 
     cnt_rows = 0
     len_dbase_dict = len(dbase_dict)
-    mark_print = get_mark_print(len_obj=len_dbase_dict)
+
+    if mark_print is None:
+        mark_print = get_mark_print(len_obj=len_dbase_dict)
 
     with open(path_to_file_base, 'w') as fb:
         for _, contact in dbase_dict.items():
@@ -366,7 +377,9 @@ def full_upload_dbase(dbase_dict: dict, path_to_file_base: pathlib.Path) -> None
 
 
 def full_backup_dbase(dbase_dict: dict,
-                      path_to_file_base=pathlib.Path(os.getenv('HOME') + os.sep + 'contact-book.backup')) -> None:
+                      path_to_file_base=pathlib.Path(os.getenv('HOME') + os.sep + 'contact-book.backup'),
+                      mark_print=None
+                      ) -> None:
     import json
     try:
         if not pathlib.Path(path_to_file_base).exists():
@@ -379,7 +392,8 @@ def full_backup_dbase(dbase_dict: dict,
 
     cnt_rows = 0
     len_dbase_dict = len(dbase_dict)
-    mark_print = get_mark_print(len_obj=len_dbase_dict)
+    if mark_print is None:
+        mark_print = get_mark_print(len_obj=len_dbase_dict)
 
     for _, contact in dbase_dict.items():
         dict2json = {**dict2json, **contact.get_dict()}
@@ -395,7 +409,7 @@ def full_backup_dbase(dbase_dict: dict,
 
 
 def main():
-    welcome_text = 'Welcome to you contact book!'
+    welcome_text = tuning_dict['welcome_text']  # it's tuning
 
     menu_text = ('Select on action (enter number) and press key Enter:',
                  '1. Add contact',
