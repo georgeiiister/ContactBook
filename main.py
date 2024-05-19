@@ -290,32 +290,32 @@ def print_contacts(dict_contacts: dict) -> None:
         print('Contact book is empty!')
 
 
-def create_file_base(path_to_file_base: pathlib.Path) -> bool | None:
-    with open(path_to_file_base, 'w'):
+def create_file_base(path_to_file_dbase: pathlib.Path) -> bool | None:
+    with open(path_to_file_dbase, 'w'):
         pass
     return True
 
 
-def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.sep + 'contact-book.dbase'),
+def full_download_dbase(path_to_file_dbase=pathlib.Path(os.getenv('HOME') + os.sep + 'contact-book.dbase'),
                         mark_print=None) -> tuple:
     base_dict: dict = {}
 
     try:
-        if not pathlib.Path(path_to_file_base).exists():
+        if not pathlib.Path(path_to_file_dbase).exists():
             raise FileBaseNotFound
     except FileBaseNotFound:
-        if not create_file_base(path_to_file_base=path_to_file_base):
+        if not create_file_base(path_to_file_dbase=path_to_file_dbase):
             return tuple()
 
     cnt_rows: int = 0
     mask = Contact.mask_date_time_creation()
 
-    with open(path_to_file_base, 'r') as fb:
+    with open(path_to_file_dbase, 'r') as fb:
         len_fb = sum(1 for _ in fb)
         if mark_print is None:
             mark_print = get_mark_print(len_fb)  # count rows in file
 
-    with open(path_to_file_base, 'r') as fb:
+    with open(path_to_file_dbase, 'r') as fb:
         for rec in fb:
             contact = rec.rstrip('\n').split(tuning_dict['sep_in_dbase'])  # it's tuning
             base_dict[contact[0]] = Contact(phone_number=contact[0],
@@ -330,7 +330,7 @@ def full_download_dbase(path_to_file_base=pathlib.Path(os.getenv('HOME') + os.se
     if cnt_rows > 0:
         print(f'total download {cnt_rows} rows')
 
-    return base_dict, path_to_file_base
+    return base_dict, path_to_file_dbase
 
 
 def create_cash_names(dict_contacts: dict) -> dict:
@@ -349,14 +349,14 @@ def create_cash_names(dict_contacts: dict) -> dict:
 
 # @decorator_args_kwargs_print
 def full_upload_dbase(dbase_dict: dict,
-                      path_to_file_base: pathlib.Path,
+                      path_to_file_dbase: pathlib.Path,
                       mark_print=None
                       ) -> None:
     try:
-        if not pathlib.Path(path_to_file_base).exists():
+        if not pathlib.Path(path_to_file_dbase).exists():
             raise FileBaseNotFound
     except FileBaseNotFound:
-        if not create_file_base(path_to_file_base=path_to_file_base):
+        if not create_file_base(path_to_file_dbase=path_to_file_dbase):
             raise FileBaseNotCreated
 
     cnt_rows = 0
@@ -365,7 +365,7 @@ def full_upload_dbase(dbase_dict: dict,
     if mark_print is None:
         mark_print = get_mark_print(len_obj=len_dbase_dict)
 
-    with open(path_to_file_base, 'w') as fb:
+    with open(path_to_file_dbase, 'w') as fb:
         for _, contact in dbase_dict.items():
             fb.write(contact.get_format_to_dbase() + '\n')
             cnt_rows += 1
@@ -377,15 +377,15 @@ def full_upload_dbase(dbase_dict: dict,
 
 
 def full_backup_dbase(dbase_dict: dict,
-                      path_to_file_base=pathlib.Path(os.getenv('HOME') + os.sep + 'contact-book.backup'),
+                      path_to_file_dbase=pathlib.Path(os.getenv('HOME') + os.sep + 'contact-book.backup'),
                       mark_print=None
                       ) -> None:
     import json
     try:
-        if not pathlib.Path(path_to_file_base).exists():
+        if not pathlib.Path(path_to_file_dbase).exists():
             raise FileBaseNotFound
     except FileBaseNotFound:
-        if not create_file_base(path_to_file_base=path_to_file_base):
+        if not create_file_base(path_to_file_dbase=path_to_file_dbase):
             raise FileBaseNotCreated
 
     dict2json = {}
@@ -404,7 +404,7 @@ def full_backup_dbase(dbase_dict: dict,
     if cnt_rows > 0:
         print(f'total prepared {cnt_rows} rows...')
 
-    with open(path_to_file_base, 'w') as fb:
+    with open(path_to_file_dbase, 'w') as fb:
         json.dump(dict2json, fb, indent=4)
 
 
@@ -425,10 +425,10 @@ def main():
 
     print(welcome_text)
 
-    contacts, cur_path_to_file_base = full_download_dbase()
+    contacts, cur_path_to_file_dbase = full_download_dbase()
     names = {}
 
-    assert cur_path_to_file_base  # check file db
+    assert cur_path_to_file_dbase  # check file db
 
     contacts_change = False
 
@@ -445,7 +445,7 @@ def main():
                 if contacts_change:
                     if not input('You have made changes. Save to disk? '
                                  '("Y" - Press any key / "N" - exit without saving)>> ').upper() == 'N':
-                        full_upload_dbase(dbase_dict=contacts, path_to_file_base=cur_path_to_file_base)
+                        full_upload_dbase(dbase_dict=contacts, path_to_file_dbase=cur_path_to_file_dbase)
                 break
 
             while True:
@@ -558,7 +558,7 @@ def main():
 
                 if action == 7:
                     if contacts_change:
-                        full_upload_dbase(dbase_dict=contacts, path_to_file_base=cur_path_to_file_base)
+                        full_upload_dbase(dbase_dict=contacts, path_to_file_dbase=cur_path_to_file_dbase)
                         contacts_change = False
                     else:
                         print('There were no changes!')
