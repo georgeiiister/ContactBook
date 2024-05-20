@@ -1,5 +1,3 @@
-import datetime
-
 from main import *
 import random
 import string
