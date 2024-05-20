@@ -454,11 +454,11 @@ def main():
                     try:
                         contact = create_contact()
 
-                        find_obj = find_contact_by_phone(dict_contacts=contacts,
-                                                         phone_number=contact.phone_number
-                                                         )
+                        find_contact = find_contact_by_phone(dict_contacts=contacts,
+                                                             phone_number=contact.phone_number
+                                                            )
 
-                        if find_obj is None:
+                        if find_contact is None:
                             contacts[contact.phone_number] = contact
                             contacts_change = True
                             raise ExitInMainMenu
