@@ -35,8 +35,7 @@ def create_dummy_contacts() -> tuple:
 def create_dummy_dbase():
     max_num_file: int = 10_000
     mark_print: int = 100_000
-    path_to_file_dbase = pathlib.Path(os.getenv('HOME') + os.sep + f'contact-book{random.randint(0, max_num_file)}'
-                                                                   f'.tst')
+    path_to_file_dbase = os.path.expanduser('~') + os.sep + f'contact-book{random.randint(0, max_num_file)}.tst'
 
     contacts_, contacts_search_ = create_dummy_contacts()
 
