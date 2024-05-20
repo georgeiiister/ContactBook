@@ -6,7 +6,8 @@ tuning_dict: dict = dict(sep_in_dbase=';',
                          welcome_text='Welcome to you contact book!',
                          num_of_lines=10,
                          mark_print=100,
-                         path_to_dbase=os.path.expanduser('~'))
+                         path_to_dbase=os.path.expanduser('~'),
+                         name_log='contact-book.log')
 
 
 class ExceptionContactBook(Exception):
