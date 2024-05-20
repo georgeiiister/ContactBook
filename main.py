@@ -456,7 +456,7 @@ def main():
 
                         find_contact = find_contact_by_phone(dict_contacts=contacts,
                                                              phone_number=contact.phone_number
-                                                            )
+                                                             )
 
                         if find_contact is None:
                             contacts[contact.phone_number] = contact
@@ -464,6 +464,7 @@ def main():
                             raise ExitInMainMenu
                         else:
                             raise ContactExistInFileDBase
+
                     except (NoVerifiedContactName, NoVerifiedPhoneNumber, ExitInMainMenu):
                         if input('Add another? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                             break
