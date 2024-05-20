@@ -6,8 +6,7 @@ tuning_dict: dict = dict(sep_in_dbase=';',
                          welcome_text='Welcome to you contact book!',
                          num_of_lines=10,
                          mark_print=100,
-                         path_to_dbase=os.path.expanduser('~')
-                         )
+                         path_to_dbase=os.path.expanduser('~'))
 
 
 class ExceptionContactBook(Exception):
@@ -131,7 +130,7 @@ class Contact(object):
 
     def __repr__(self):
         return (f'Contact(contact_name={self.contact_name}, phone_number={self.phone_number}, '
-                f'date_time_creation_contact={self.get_date_time_creation_contact()})')
+                f'date_time_creation_contact={self.get_date_time_creation_contact})')
 
     def __del__(self):
         Contact.__count_objects -= 1
@@ -153,19 +152,24 @@ class Contact(object):
     def phone_number(self):
         return self.__phone_number
 
+    @property
     def get_date_time_creation_contact(self) -> datetime.datetime:
         return self.__date_time_creation_contact
 
+    @property
     def get_str_date_time_creation_contact(self) -> str:
-        return self.get_date_time_creation_contact().strftime(Contact.mask_date_time_creation())
+        return self.get_date_time_creation_contact.strftime(Contact.mask_date_time_creation())
 
     def get_format_to_dbase(self) -> str:
         return (f'{self.phone_number};{self.contact_name};'
-                f'{self.get_str_date_time_creation_contact()}')
+                f'{self.get_str_date_time_creation_contact}')
 
     def get_dict(self) -> dict:
         return {self.phone_number: {'phone_number': self.phone_number,
-                                    'contact_name': self.contact_name}}
+                                    'contact_name': self.contact_name,
+                                    'date_time_creation_contact': self.get_str_date_time_creation_contact
+                                    }
+                }
 
 
 class ContactMr(Contact):
@@ -178,6 +182,7 @@ class ContactMr(Contact):
                  contact_name: str,
                  date_time_creation_contact: datetime.datetime,
                  validate):
+
         super().__init__(phone_number=phone_number,
                          contact_name=contact_name,
                          date_time_creation_contact=date_time_creation_contact,
@@ -195,6 +200,7 @@ class ContactMs(Contact):
                  contact_name: str,
                  date_time_creation_contact: datetime.datetime,
                  validate):
+
         super().__init__(phone_number=phone_number,
                          contact_name=contact_name,
                          date_time_creation_contact=date_time_creation_contact,
@@ -351,8 +357,7 @@ def create_cash_names(dict_contacts: dict) -> dict:
 # @decorator_args_kwargs_print
 def full_upload_dbase(dbase_dict: dict,
                       path_to_file_dbase: pathlib.Path,
-                      mark_print=None
-                      ) -> None:
+                      mark_print=None) -> None:
     try:
         if not pathlib.Path(path_to_file_dbase).exists():
             raise FileBaseNotFound
@@ -379,8 +384,7 @@ def full_upload_dbase(dbase_dict: dict,
 
 def full_backup_dbase(dbase_dict: dict,
                       path_to_file_dbase=pathlib.Path(tuning_dict['path_to_dbase'] + os.sep + 'contact-book.backup'),
-                      mark_print=None
-                      ) -> None:
+                      mark_print=None) -> None:
     import json
     try:
         if not pathlib.Path(path_to_file_dbase).exists():
@@ -455,8 +459,7 @@ def main():
                         contact = create_contact()
 
                         find_contact = find_contact_by_phone(dict_contacts=contacts,
-                                                             phone_number=contact.phone_number
-                                                             )
+                                                             phone_number=contact.phone_number)
 
                         if find_contact is None:
                             contacts[contact.phone_number] = contact
