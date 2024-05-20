@@ -6,6 +6,7 @@ tuning_dict: dict = dict(sep_in_dbase=';',
                          welcome_text='Welcome to you contact book!',
                          num_of_lines=10,
                          mark_print=100,
+                         path_to_dbase=os.path.expanduser('~')
                          )
 
 
@@ -216,8 +217,8 @@ def decorator_args_kwargs_print(func):
 
 
 def find_contact_by_phone(dict_contacts: dict,
-                          phone_number: str) -> tuple:
-    return (dict_contacts.get(phone_number),)
+                          phone_number: str) -> None | Contact:
+    return dict_contacts.get(phone_number)
 
 
 def find_contact_by_name(dict_contacts: dict,
@@ -296,7 +297,7 @@ def create_file_base(path_to_file_dbase: pathlib.Path) -> bool | None:
     return True
 
 
-def full_download_dbase(path_to_file_dbase=pathlib.Path(os.getenv('HOME') + os.sep + 'contact-book.dbase'),
+def full_download_dbase(path_to_file_dbase=pathlib.Path(tuning_dict['path_to_dbase'] + os.sep + 'contact-book.dbase'),
                         mark_print=None) -> tuple:
     base_dict: dict = {}
 
@@ -377,7 +378,7 @@ def full_upload_dbase(dbase_dict: dict,
 
 
 def full_backup_dbase(dbase_dict: dict,
-                      path_to_file_dbase=pathlib.Path(os.getenv('HOME') + os.sep + 'contact-book.backup'),
+                      path_to_file_dbase=pathlib.Path(tuning_dict['path_to_dbase'] + os.sep + 'contact-book.backup'),
                       mark_print=None
                       ) -> None:
     import json
@@ -453,9 +454,11 @@ def main():
                     try:
                         contact = create_contact()
 
-                        find_obj = find_contact_by_phone(dict_contacts=contacts, phone_number=contact.phone_number)
+                        find_obj = find_contact_by_phone(dict_contacts=contacts,
+                                                         phone_number=contact.phone_number
+                                                         )
 
-                        if not find_obj:
+                        if find_obj is None:
                             contacts[contact.phone_number] = contact
                             contacts_change = True
                             raise ExitInMainMenu
@@ -466,7 +469,7 @@ def main():
                             break
                     except ContactExistInFileDBase:
                         del contact
-                        if input(f'Contact exist! {find_obj[0]} {find_obj[0].get_str_date_time_creation_contact()} '
+                        if input(f'Contact exist!'
                                  f'Repeat another? ("Y" - Press any key / "N" - return main menu)>> '
                                  ).upper() == 'N':
                             break
@@ -492,7 +495,7 @@ def main():
                             case _:
                                 contact = None
 
-                        if not contact:
+                        if contact is None:
                             raise ContactNotFound
                         else:
                             _ = {i.phone_number: i for i in contact}
@@ -517,13 +520,11 @@ def main():
                     try:
                         contact = find_contact_by_phone(dict_contacts=contacts,
                                                         phone_number=input('Enter phone number for remove>> '))
-                        if not contact:
+                        if contact is None:
                             raise ContactNotFound
                         else:
                             print(f'This contact {str(contact)} will be deleted!')
-                            del contacts[contact[0].phone_number]
-                            for i in contact:
-                                del i
+                            del contacts[contact.phone_number]
                             contacts_change = True
                             if input('Repeat remove? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                                 break
@@ -536,10 +537,10 @@ def main():
                     try:
                         contact = find_contact_by_phone(dict_contacts=contacts,
                                                         phone_number=input('Enter phone number for edit>> '))
-                        if not contact:
+                        if contact is None:
                             raise ContactNotFound
                         else:
-                            contact = edit_contact(contact=contact[0])
+                            contact = edit_contact(contact=contact)
                             contacts[contact.phone_number] = contact
                             contacts_change = True
 
@@ -558,7 +559,9 @@ def main():
 
                 if action == 7:
                     if contacts_change:
-                        full_upload_dbase(dbase_dict=contacts, path_to_file_dbase=cur_path_to_file_dbase)
+                        full_upload_dbase(dbase_dict=contacts,
+                                          path_to_file_dbase=cur_path_to_file_dbase
+                                          )
                         contacts_change = False
                     else:
                         print('There were no changes!')
