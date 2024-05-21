@@ -54,6 +54,14 @@ class FileBaseNotCreated(ExceptionContactBook):
     pass
 
 
+class FileLogNotFound(ExceptionContactBook):
+    pass
+
+
+class FileLogNotCreated(ExceptionContactBook):
+    pass
+
+
 class ContactExistInFileDBase(ExceptionContactBook):
     pass
 
@@ -183,7 +191,6 @@ class ContactMr(Contact):
                  contact_name: str,
                  date_time_creation_contact: datetime.datetime,
                  validate):
-
         super().__init__(phone_number=phone_number,
                          contact_name=contact_name,
                          date_time_creation_contact=date_time_creation_contact,
@@ -201,7 +208,6 @@ class ContactMs(Contact):
                  contact_name: str,
                  date_time_creation_contact: datetime.datetime,
                  validate):
-
         super().__init__(phone_number=phone_number,
                          contact_name=contact_name,
                          date_time_creation_contact=date_time_creation_contact,
@@ -214,11 +220,32 @@ def sorted_dict_contacts(dict_contacts: dict) -> list:
     return list_contacts
 
 
-def decorator_args_kwargs_print(func):
+def decorator_args_kwargs(func):
     def wrapper(*args, **kwargs):
-        print(*args, sep='\n')
-        print(*kwargs.items(), sep='\n')
-        return func(*args, **kwargs)
+        path_to_file_log = pathlib.Path(tuning_dict['path_to_dbase'] + os.sep + tuning_dict['name_log'])
+
+        if path_to_file_log is not None:
+            try:
+                if not pathlib.Path(path_to_file_log).exists():
+                    raise FileLogNotFound
+            except FileLogNotFound:
+                if not create_file_log(path_to_file_log=path_to_file_log):
+                    raise FileLogNotCreated
+            with open(path_to_file_log, 'a') as fl:
+                fl.write(f'args: {tuning_dict["sep_in_dbase"].join(list(args))}\n')
+                lst_kwargs = [str(i) + ':' + str(j) for i, j in kwargs.items()]
+                fl.write(f'kwargs: {tuning_dict["sep_in_dbase"].join(lst_kwargs)}\n')
+        else:
+            print(*args, sep='\n')
+            print(*kwargs.items(), sep='\n')
+
+        result = func(*args, **kwargs)
+
+        if path_to_file_log is not None:
+            with open(path_to_file_log, 'a') as fl:
+                fl.write(f'result: {str(result)}\n')
+
+        return result
 
     return wrapper
 
@@ -237,6 +264,7 @@ def find_contact_by_name(dict_contacts: dict,
     return _
 
 
+@decorator_args_kwargs
 def find_contact_by_name_(names_dict: dict,
                           dict_contacts: dict,
                           contact_name: str) -> tuple:
@@ -304,6 +332,12 @@ def create_file_base(path_to_file_dbase: pathlib.Path) -> bool | None:
     return True
 
 
+def create_file_log(path_to_file_log: pathlib.Path) -> bool | None:
+    with open(path_to_file_log, 'w'):
+        pass
+    return True
+
+
 def full_download_dbase(path_to_file_dbase=pathlib.Path(tuning_dict['path_to_dbase'] + os.sep + 'contact-book.dbase'),
                         mark_print=None) -> tuple:
     base_dict: dict = {}
@@ -355,7 +389,7 @@ def create_cash_names(dict_contacts: dict) -> dict:
     return names_dict
 
 
-# @decorator_args_kwargs_print
+# @decorator_args_kwargs
 def full_upload_dbase(dbase_dict: dict,
                       path_to_file_dbase: pathlib.Path,
                       mark_print=None) -> None:
@@ -503,7 +537,7 @@ def main():
                         if contact is None:
                             raise ContactNotFound
                         else:
-                            _ = {i.phone_number: i for i in contact}
+                            _ = {i.phone_number: i for i in contact}  # TODO add contact method __iter__
                             print_contacts(_)
                             if input('Repeat find? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                                 break
