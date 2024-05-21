@@ -522,8 +522,9 @@ def main():
 
                         match search_type:
                             case 1:
-                                contact = find_contact_by_phone(dict_contacts=contacts,
-                                                                phone_number=input('Enter phone number for search>> '))
+                                contact = (find_contact_by_phone(dict_contacts=contacts,
+                                                                 phone_number=input('Enter phone number for search>> '))
+                                           ,)
                             case 2:
                                 if not names:
                                     names = create_cash_names(dict_contacts=contacts)
