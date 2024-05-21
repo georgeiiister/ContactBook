@@ -65,7 +65,7 @@ def create_dummy_cash_names(dict_contacts: dict) -> dict:
     names_dict_ = create_cash_names(dict_contacts=dict_contacts)
 
     time_stop = datetime.datetime.now()
-    print(f'begining: {time_start}', f'stopping: {time_stop}', f'cost:{time_stop - time_start}', sep='\n')
+    print(f'begin: {time_start}', f'stop: {time_stop}', f'cost:{time_stop - time_start}', sep='\n')
 
     return names_dict_
 
@@ -80,12 +80,13 @@ def search_contact_in_dummy(names_dict_: dict, dict_contacts: dict, contacts_sea
     return result_search
 
 
-contacts, path_to_file, contacts_search = create_dummy()
+#contacts, path_to_file, contacts_search = create_dummy()
 
-names_dict = create_dummy_cash_names(dict_contacts=contacts)
+#names_dict = create_dummy_cash_names(dict_contacts=contacts)
 
-search_contact = search_contact_in_dummy(names_dict_=names_dict,
+'''search_contact = search_contact_in_dummy(names_dict_=names_dict,
                                          dict_contacts=contacts,
                                          contacts_search_=contacts_search
-                                         )
+                                         )'''
+
 
