@@ -105,9 +105,9 @@ class Contact(object):
             if not phone_number:
                 raise NoVerifiedPhoneNumber
 
-            _ = phone_number[1:] if phone_number.startswith('+') else phone_number
+            phone_number_without_plus = phone_number[1:] if phone_number.startswith('+') else phone_number
             import string
-            if tuple(filter(lambda i: not (i in string.digits), _)):
+            if tuple(filter(lambda i: not (i in string.digits), phone_number_without_plus)):
                 raise NoVerifiedPhoneNumberOnOnlyDigits
             return True
 
@@ -179,6 +179,9 @@ class Contact(object):
                                     'date_time_creation_contact': self.get_str_date_time_creation_contact
                                     }
                 }
+
+    def get_dict_with_object(self) -> dict:
+        return {self.phone_number: self}
 
 
 class ContactMr(Contact):
@@ -257,11 +260,11 @@ def find_contact_by_phone(dict_contacts: dict,
 
 def find_contact_by_name(dict_contacts: dict,
                          contact_name: str) -> tuple:
-    _ = ()
+    contacts = ()
     for obj in dict_contacts.values():
         if obj.contact_name.upper().find(contact_name.upper()) >= 0:
-            _ += (obj,)
-    return _
+            contacts += (obj,)
+    return contacts
 
 
 @decorator_args_kwargs
@@ -538,8 +541,9 @@ def main():
                         if contact is None:
                             raise ContactNotFound
                         else:
-                            _ = {i.phone_number: i for i in contact}  # TODO add contact method __iter__
+                            _ = {i.phone_number: i for i in contact}
                             print_contacts(_)
+
                             if input('Repeat find? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                                 break
                     except ContactNotFound:

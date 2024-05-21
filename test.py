@@ -87,3 +87,8 @@ def search_contact_in_dummy(names_dict_: dict, dict_contacts: dict, contacts_sea
                                          dict_contacts=contacts,
                                          contacts_search_=contacts_search
                                          )'''
+
+a=Contact(phone_number='+7925',contact_name='georgeiiister')
+b=create_cash_names(a.get_dict_with_object())
+
+f={i.contact_name[:j].upper():i for i in a.get_dict_with_object().values() for j in range(1, len(i.contact_name)+1)}
