@@ -75,18 +75,15 @@ def search_contact_in_dummy(names_dict_: dict, dict_contacts: dict, contacts_sea
     for _, contact in contacts_search_.items():
         result_search += find_contact_by_name_(names_dict=names_dict_,
                                                dict_contacts=dict_contacts,
-                                               contact_name=contact.contact_name[:int(len(contact.contact_name)/3)])
+                                               contact_name=contact.contact_name[:int(len(contact.contact_name) / 3)])
 
     return result_search
 
 
-#contacts, path_to_file, contacts_search = create_dummy()
-
-#names_dict = create_dummy_cash_names(dict_contacts=contacts)
+'contacts, path_to_file, contacts_search = create_dummy()'
+'names_dict = create_dummy_cash_names(dict_contacts=contacts)'
 
 '''search_contact = search_contact_in_dummy(names_dict_=names_dict,
                                          dict_contacts=contacts,
                                          contacts_search_=contacts_search
                                          )'''
-
-
