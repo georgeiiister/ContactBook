@@ -106,6 +106,7 @@ class Contact(object):
                 raise NoVerifiedPhoneNumber
 
             phone_number_without_plus = phone_number[1:] if phone_number.startswith('+') else phone_number
+
             import string
             if tuple(filter(lambda i: not (i in string.digits), phone_number_without_plus)):
                 raise NoVerifiedPhoneNumberOnOnlyDigits
@@ -211,6 +212,7 @@ class ContactMs(Contact):
                  contact_name: str,
                  date_time_creation_contact: datetime.datetime,
                  validate):
+
         super().__init__(phone_number=phone_number,
                          contact_name=contact_name,
                          date_time_creation_contact=date_time_creation_contact,
@@ -271,12 +273,12 @@ def find_contact_by_name(dict_contacts: dict,
 def find_contact_by_name_(names_dict: dict,
                           dict_contacts: dict,
                           contact_name: str) -> tuple:
-    _ = names_dict.get(contact_name.upper())
+    contacts = names_dict.get(contact_name.upper())
 
-    if _ is None:
-        _ = find_contact_by_name(dict_contacts=dict_contacts,
-                                 contact_name=contact_name)
-    return _
+    if contacts is None:
+        contacts = find_contact_by_name(dict_contacts=dict_contacts,
+                                        contact_name=contact_name)
+    return contacts
 
 
 def create_contact() -> Contact:
@@ -381,14 +383,14 @@ def full_download_dbase(path_to_file_dbase=pathlib.Path(tuning_dict['path_to_dba
 def create_cash_names(dict_contacts: dict) -> dict:
     names_dict: dict = {}
 
-    for obj in dict_contacts.values():
-        _ = ''
-        for i in obj.contact_name:
-            _ += i.upper()
-            if names_dict.get(_):
-                names_dict[_] = names_dict[_] + (obj,)
+    for contact in dict_contacts.values():
+        part_of_contact_name = ''
+        for i in contact.contact_name:
+            part_of_contact_name += i.upper()
+            if names_dict.get(part_of_contact_name):
+                names_dict[part_of_contact_name] = names_dict[part_of_contact_name] + (contact,)
             else:
-                names_dict[_] = (obj,)
+                names_dict[part_of_contact_name] = (contact,)
     return names_dict
 
 
@@ -526,8 +528,7 @@ def main():
                         match search_type:
                             case 1:
                                 contact = (find_contact_by_phone(dict_contacts=contacts,
-                                                                 phone_number=input('Enter phone number for search>> '))
-                                           ,)
+                                                                 phone_number=input('Enter phone for search>> ')),)
                             case 2:
                                 if not names:
                                     names = create_cash_names(dict_contacts=contacts)
@@ -541,8 +542,8 @@ def main():
                         if contact is None:
                             raise ContactNotFound
                         else:
-                            _ = {i.phone_number: i for i in contact}
-                            print_contacts(_)
+                            contact = {i.phone_number: i for i in contact}
+                            print_contacts(contact)
 
                             if input('Repeat find? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                                 break
