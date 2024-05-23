@@ -132,6 +132,7 @@ class Contact(object):
         self.__phone_number = phone_number
         self.__contact_name = contact_name
         self.__date_time_creation_contact = date_time_creation_contact
+        self.__count = 0
 
         Contact.__count_objects += 1
 
@@ -181,6 +182,22 @@ class Contact(object):
                                     }
                 }
 
+    def get_tuple(self) -> tuple:
+        return tuple(self.get_dict()[self.phone_number].items())
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        contact = self.get_tuple()
+
+        if self.__count >= len(contact):
+            raise StopIteration
+        else:
+            contact_item = contact[self.__count]
+            self.__count += 1
+            return contact_item
+
     def get_dict_with_object(self) -> dict:
         return {self.phone_number: self}
 
@@ -212,7 +229,6 @@ class ContactMs(Contact):
                  contact_name: str,
                  date_time_creation_contact: datetime.datetime,
                  validate):
-
         super().__init__(phone_number=phone_number,
                          contact_name=contact_name,
                          date_time_creation_contact=date_time_creation_contact,
