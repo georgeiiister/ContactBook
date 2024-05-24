@@ -1,6 +1,7 @@
 import datetime
 import os
 import pathlib
+import json
 
 tuning_dict: dict = dict(sep_in_dbase=';',
                          welcome_text='Welcome to you contact book!',
@@ -146,14 +147,9 @@ class Contact(object):
     def __del__(self):
         Contact.__count_objects -= 1
 
-    def __len__(self):
-        return len(self.phone_number)
-
-    def __bool__(self):
-        return bool(self.phone_number)
-
     def __eq__(self, other):
-        return self.phone_number == other.phone_number
+        return (self.phone_number == other.phone_number and
+                self.contact_name.upper() == other.contact_name.upper())
 
     @property
     def contact_name(self):
@@ -216,7 +212,6 @@ class ContactMr(Contact):
                  contact_name: str,
                  date_time_creation_contact: datetime.datetime,
                  validate):
-
         super().__init__(phone_number=phone_number,
                          contact_name=contact_name,
                          date_time_creation_contact=date_time_creation_contact,
@@ -246,6 +241,13 @@ def sorted_dict_contacts(dict_contacts: dict) -> list:
     return list_contacts
 
 
+def obj2json(obj):
+    try:
+        return json.dumps(obj, indent=4, sort_keys=True)
+    except TypeError:
+        return str(obj)
+
+
 def decorator_args_kwargs(func):
     def wrapper(*args, **kwargs):
         path_to_file_log = pathlib.Path(tuning_dict['path_to_dbase'] + os.sep + tuning_dict['name_log'])
@@ -258,13 +260,14 @@ def decorator_args_kwargs(func):
                 if not create_file_log(path_to_file_log=path_to_file_log):
                     raise FileLogNotCreated
             with open(path_to_file_log, 'a') as fl:
-                fl.write(f'args: {tuning_dict["sep_in_dbase"].join(list(args))}\n')
-                lst_kwargs = [str(i) + ':' + str(j) for i, j in kwargs.items()]
-                fl.write(f'kwargs: {tuning_dict["sep_in_dbase"].join(lst_kwargs)}\n')
+                sep = tuning_dict["sep_in_dbase"]
+                fl.write(f'args: {sep.join(list(args))}\n')
+
+                list_kwargs = [str(i) + ':' + str(j) for i, j in kwargs.items()]
+                fl.write(f'kwargs: {sep.join(list_kwargs)}\n')
         else:
             print(*args, sep='\n')
-            print(*kwargs.items(), sep='\n')
-
+            print(*kwargs, sep='\n')
         result = func(*args, **kwargs)
 
         if path_to_file_log is not None:
@@ -276,6 +279,7 @@ def decorator_args_kwargs(func):
     return wrapper
 
 
+@decorator_args_kwargs
 def find_contact_by_phone(dict_contacts: dict,
                           phone_number: str) -> None | Contact:
     return dict_contacts.get(phone_number)
@@ -434,7 +438,7 @@ def full_upload_dbase(dbase_dict: dict,
 
     with open(path_to_file_dbase, 'w') as fb:
         for _, contact in dbase_dict.items():
-            fb.write(f'{contact.format_to_dbase }\n')
+            fb.write(f'{contact.format_to_dbase}\n')
             cnt_rows += 1
             if (len_dbase_dict // mark_print) >= 2 and cnt_rows % mark_print == 0:
                 print(f'upload {cnt_rows} rows...')
@@ -445,8 +449,7 @@ def full_upload_dbase(dbase_dict: dict,
 
 def full_backup_dbase(dbase_dict: dict,
                       path_to_file_dbase=pathlib.Path(tuning_dict['path_to_dbase'] + os.sep + 'contact-book.backup'),
-                      mark_print=None) -> None:
-    import json
+                      mark_print=None) -> pathlib.Path:
     try:
         if not pathlib.Path(path_to_file_dbase).exists():
             raise FileBaseNotFound
@@ -472,6 +475,8 @@ def full_backup_dbase(dbase_dict: dict,
 
     with open(path_to_file_dbase, 'w') as fb:
         json.dump(dict2json, fb, indent=4)
+
+    return path_to_file_dbase
 
 
 def main():
@@ -619,8 +624,8 @@ def main():
                             break
 
                 if action == 6:
-                    full_backup_dbase(dbase_dict=contacts)
-                    input('Backup done...')
+                    path_to_file = full_backup_dbase(dbase_dict=contacts)
+                    input(f'Backup done... create file: {path_to_file}')
                     break
 
                 if action == 7:

@@ -93,5 +93,6 @@ b = create_cash_names(a.dict_with_object)
 
 f = {i.contact_name[:j].upper():i for i in a.dict_with_object.values() for j in range(1, len(i.contact_name)+1)}
 
-for i in a:
-    print(i)
+
+print(hash(a.tuple))
+v=hash(a)
