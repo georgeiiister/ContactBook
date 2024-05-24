@@ -141,7 +141,7 @@ class Contact(object):
 
     def __repr__(self):
         return (f'Contact(contact_name={self.contact_name}, phone_number={self.phone_number}, '
-                f'date_time_creation_contact={self.get_date_time_creation_contact})')
+                f'date_time_creation_contact={self.date_time_creation_contact})')
 
     def __del__(self):
         Contact.__count_objects -= 1
@@ -164,32 +164,35 @@ class Contact(object):
         return self.__phone_number
 
     @property
-    def get_date_time_creation_contact(self) -> datetime.datetime:
+    def date_time_creation_contact(self) -> datetime.datetime:
         return self.__date_time_creation_contact
 
     @property
-    def get_str_date_time_creation_contact(self) -> str:
-        return self.get_date_time_creation_contact.strftime(Contact.mask_date_time_creation())
+    def str_date_time_creation_contact(self) -> str:
+        return self.date_time_creation_contact.strftime(Contact.mask_date_time_creation())
 
-    def get_format_to_dbase(self) -> str:
+    @property
+    def format_to_dbase(self) -> str:
         return (f'{self.phone_number};{self.contact_name};'
-                f'{self.get_str_date_time_creation_contact}')
+                f'{self.str_date_time_creation_contact}')
 
-    def get_dict(self) -> dict:
+    @property
+    def dict(self) -> dict:
         return {self.phone_number: {'phone_number': self.phone_number,
                                     'contact_name': self.contact_name,
-                                    'date_time_creation_contact': self.get_str_date_time_creation_contact
+                                    'date_time_creation_contact': self.str_date_time_creation_contact
                                     }
                 }
 
-    def get_tuple(self) -> tuple:
-        return tuple(self.get_dict()[self.phone_number].items())
+    @property
+    def tuple(self) -> tuple:
+        return tuple(self.dict[self.phone_number].items())
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        contact = self.get_tuple()
+        contact = self.tuple
 
         if self.__count >= len(contact):
             raise StopIteration
@@ -198,7 +201,8 @@ class Contact(object):
             self.__count += 1
             return contact_item
 
-    def get_dict_with_object(self) -> dict:
+    @property
+    def dict_with_object(self) -> dict:
         return {self.phone_number: self}
 
 
@@ -212,6 +216,7 @@ class ContactMr(Contact):
                  contact_name: str,
                  date_time_creation_contact: datetime.datetime,
                  validate):
+
         super().__init__(phone_number=phone_number,
                          contact_name=contact_name,
                          date_time_creation_contact=date_time_creation_contact,
@@ -429,7 +434,7 @@ def full_upload_dbase(dbase_dict: dict,
 
     with open(path_to_file_dbase, 'w') as fb:
         for _, contact in dbase_dict.items():
-            fb.write(contact.get_format_to_dbase() + '\n')
+            fb.write(f'{contact.format_to_dbase }\n')
             cnt_rows += 1
             if (len_dbase_dict // mark_print) >= 2 and cnt_rows % mark_print == 0:
                 print(f'upload {cnt_rows} rows...')
@@ -457,7 +462,7 @@ def full_backup_dbase(dbase_dict: dict,
         mark_print = get_mark_print(len_obj=len_dbase_dict)
 
     for _, contact in dbase_dict.items():
-        dict2json = {**dict2json, **contact.get_dict()}
+        dict2json = {**dict2json, **contact.dict}
         cnt_rows += 1
         if (len_dbase_dict // mark_print) >= 2 and cnt_rows % mark_print == 0:
             print(f'prepared {cnt_rows} rows...')
