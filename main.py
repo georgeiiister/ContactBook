@@ -212,6 +212,7 @@ class ContactMr(Contact):
                  contact_name: str,
                  date_time_creation_contact: datetime.datetime,
                  validate):
+
         super().__init__(phone_number=phone_number,
                          contact_name=contact_name,
                          date_time_creation_contact=date_time_creation_contact,
@@ -259,6 +260,7 @@ def decorator_args_kwargs(func):
             except FileLogNotFound:
                 if not create_file_log(path_to_file_log=path_to_file_log):
                     raise FileLogNotCreated
+
             with open(path_to_file_log, 'a') as fl:
                 sep = tuning_dict["sep_in_dbase"]
                 fl.write(f'args: {sep.join(list(args))}\n')
