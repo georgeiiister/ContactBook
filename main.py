@@ -248,6 +248,27 @@ def obj2json(obj):
     except TypeError:
         return str(obj)
 
+def decorator_time_lost(func):
+    def wrapper(*args, **kwargs):
+        path_to_file_log = pathlib.Path(tuning_dict['path_to_dbase'] + os.sep + tuning_dict['name_log'])
+        try:
+            if not pathlib.Path(path_to_file_log).exists():
+                raise FileLogNotFound
+        except FileLogNotFound:
+            if not create_file_log(path_to_file_log=path_to_file_log):
+                raise FileLogNotCreated
+
+        with open(path_to_file_log, 'a') as fl:
+            fl.write(f'start function: {func.__name__}'
+                     f'{datetime.datetime.now().strftime(Contact.mask_date_time_creation())}\n')
+            ret = func(*args,**kwargs)
+            fl.write(f'stop function {func.__name__}'
+                     f'{datetime.datetime.now().strftime(Contact.mask_date_time_creation())}\n')
+
+        return ret
+
+    return wrapper
+
 
 def decorator_args_kwargs(func):
     def wrapper(*args, **kwargs):
@@ -296,7 +317,8 @@ def find_contact_by_name(dict_contacts: dict,
     return contacts
 
 
-@decorator_args_kwargs
+#@decorator_args_kwargs
+@decorator_time_lost
 def find_contact_by_name_(names_dict: dict,
                           dict_contacts: dict,
                           contact_name: str) -> tuple:
