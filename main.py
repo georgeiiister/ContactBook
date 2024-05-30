@@ -212,7 +212,6 @@ class ContactMr(Contact):
                  contact_name: str,
                  date_time_creation_contact: datetime.datetime,
                  validate):
-
         super().__init__(phone_number=phone_number,
                          contact_name=contact_name,
                          date_time_creation_contact=date_time_creation_contact,
@@ -248,6 +247,7 @@ def obj2json(obj):
     except TypeError:
         return str(obj)
 
+
 def decorator_time_lost(func):
     def wrapper(*args, **kwargs):
         path_to_file_log = pathlib.Path(tuning_dict['path_to_dbase'] + os.sep + tuning_dict['name_log'])
@@ -261,7 +261,7 @@ def decorator_time_lost(func):
         with open(path_to_file_log, 'a') as fl:
             fl.write(f'start function: {func.__name__}'
                      f'{datetime.datetime.now().strftime(Contact.mask_date_time_creation())}\n')
-            ret = func(*args,**kwargs)
+            ret = func(*args, **kwargs)
             fl.write(f'stop function {func.__name__}'
                      f'{datetime.datetime.now().strftime(Contact.mask_date_time_creation())}\n')
 
@@ -317,7 +317,6 @@ def find_contact_by_name(dict_contacts: dict,
     return contacts
 
 
-#@decorator_args_kwargs
 @decorator_time_lost
 def find_contact_by_name_(names_dict: dict,
                           dict_contacts: dict,
