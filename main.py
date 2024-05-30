@@ -120,10 +120,6 @@ class Contact(object):
             else:
                 return False
 
-    __slots__ = ['__phone_number',
-                 '__contact_name',
-                 '__date_time_creation_contact',
-                 ]
     def __init__(self,
                  phone_number: str,
                  contact_name: str,
