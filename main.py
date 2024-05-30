@@ -1,6 +1,7 @@
 import datetime
 import os
 import pathlib
+import json
 
 tuning_dict: dict = dict(sep_in_dbase=';',
                          welcome_text='Welcome to you contact book!',
@@ -105,9 +106,10 @@ class Contact(object):
             if not phone_number:
                 raise NoVerifiedPhoneNumber
 
-            _ = phone_number[1:] if phone_number.startswith('+') else phone_number
+            phone_number_without_plus = phone_number[1:] if phone_number.startswith('+') else phone_number
+
             import string
-            if tuple(filter(lambda i: not (i in string.digits), _)):
+            if tuple(filter(lambda i: not (i in string.digits), phone_number_without_plus)):
                 raise NoVerifiedPhoneNumberOnOnlyDigits
             return True
 
@@ -135,6 +137,7 @@ class Contact(object):
         self.__phone_number = phone_number
         self.__contact_name = contact_name
         self.__date_time_creation_contact = date_time_creation_contact
+        self.__count = 0
 
         Contact.__count_objects += 1
 
@@ -143,19 +146,14 @@ class Contact(object):
 
     def __repr__(self):
         return (f'Contact(contact_name={self.contact_name}, phone_number={self.phone_number}, '
-                f'date_time_creation_contact={self.get_date_time_creation_contact})')
+                f'date_time_creation_contact={self.date_time_creation_contact})')
 
     def __del__(self):
         Contact.__count_objects -= 1
 
-    def __len__(self):
-        return len(self.phone_number)
-
-    def __bool__(self):
-        return bool(self.phone_number)
-
     def __eq__(self, other):
-        return self.phone_number == other.phone_number
+        return (self.phone_number == other.phone_number and
+                self.contact_name.upper() == other.contact_name.upper())
 
     @property
     def contact_name(self):
@@ -166,23 +164,46 @@ class Contact(object):
         return self.__phone_number
 
     @property
-    def get_date_time_creation_contact(self) -> datetime.datetime:
+    def date_time_creation_contact(self) -> datetime.datetime:
         return self.__date_time_creation_contact
 
     @property
-    def get_str_date_time_creation_contact(self) -> str:
-        return self.get_date_time_creation_contact.strftime(Contact.mask_date_time_creation())
+    def str_date_time_creation_contact(self) -> str:
+        return self.date_time_creation_contact.strftime(Contact.mask_date_time_creation())
 
-    def get_format_to_dbase(self) -> str:
+    @property
+    def format_to_dbase(self) -> str:
         return (f'{self.phone_number};{self.contact_name};'
-                f'{self.get_str_date_time_creation_contact}')
+                f'{self.str_date_time_creation_contact}')
 
-    def get_dict(self) -> dict:
+    @property
+    def dict(self) -> dict:
         return {self.phone_number: {'phone_number': self.phone_number,
                                     'contact_name': self.contact_name,
-                                    'date_time_creation_contact': self.get_str_date_time_creation_contact
+                                    'date_time_creation_contact': self.str_date_time_creation_contact
                                     }
                 }
+
+    @property
+    def tuple(self) -> tuple:
+        return tuple(self.dict[self.phone_number].items())
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        contact = self.tuple
+
+        if self.__count >= len(contact):
+            raise StopIteration
+        else:
+            contact_item = contact[self.__count]
+            self.__count += 1
+            return contact_item
+
+    @property
+    def dict_with_object(self) -> dict:
+        return {self.phone_number: self}
 
 
 class ContactMr(Contact):
@@ -195,6 +216,7 @@ class ContactMr(Contact):
                  contact_name: str,
                  date_time_creation_contact: datetime.datetime,
                  validate):
+
         super().__init__(phone_number=phone_number,
                          contact_name=contact_name,
                          date_time_creation_contact=date_time_creation_contact,
@@ -224,6 +246,34 @@ def sorted_dict_contacts(dict_contacts: dict) -> list:
     return list_contacts
 
 
+def obj2json(obj):
+    try:
+        return json.dumps(obj, indent=4, sort_keys=True)
+    except TypeError:
+        return str(obj)
+
+def decorator_time_lost(func):
+    def wrapper(*args, **kwargs):
+        path_to_file_log = pathlib.Path(tuning_dict['path_to_dbase'] + os.sep + tuning_dict['name_log'])
+        try:
+            if not pathlib.Path(path_to_file_log).exists():
+                raise FileLogNotFound
+        except FileLogNotFound:
+            if not create_file_log(path_to_file_log=path_to_file_log):
+                raise FileLogNotCreated
+
+        with open(path_to_file_log, 'a') as fl:
+            fl.write(f'start function: {func.__name__}'
+                     f'{datetime.datetime.now().strftime(Contact.mask_date_time_creation())}\n')
+            ret = func(*args,**kwargs)
+            fl.write(f'stop function {func.__name__}'
+                     f'{datetime.datetime.now().strftime(Contact.mask_date_time_creation())}\n')
+
+        return ret
+
+    return wrapper
+
+
 def decorator_args_kwargs(func):
     def wrapper(*args, **kwargs):
         path_to_file_log = pathlib.Path(tuning_dict['path_to_dbase'] + os.sep + tuning_dict['name_log'])
@@ -235,14 +285,16 @@ def decorator_args_kwargs(func):
             except FileLogNotFound:
                 if not create_file_log(path_to_file_log=path_to_file_log):
                     raise FileLogNotCreated
+
             with open(path_to_file_log, 'a') as fl:
-                fl.write(f'args: {tuning_dict["sep_in_dbase"].join(list(args))}\n')
-                lst_kwargs = [str(i) + ':' + str(j) for i, j in kwargs.items()]
-                fl.write(f'kwargs: {tuning_dict["sep_in_dbase"].join(lst_kwargs)}\n')
+                sep = tuning_dict["sep_in_dbase"]
+                fl.write(f'args: {sep.join(list(args))}\n')
+
+                list_kwargs = [str(i) + ':' + str(j) for i, j in kwargs.items()]
+                fl.write(f'kwargs: {sep.join(list_kwargs)}\n')
         else:
             print(*args, sep='\n')
-            print(*kwargs.items(), sep='\n')
-
+            print(*kwargs, sep='\n')
         result = func(*args, **kwargs)
 
         if path_to_file_log is not None:
@@ -254,6 +306,7 @@ def decorator_args_kwargs(func):
     return wrapper
 
 
+@decorator_args_kwargs
 def find_contact_by_phone(dict_contacts: dict,
                           phone_number: str) -> None | Contact:
     return dict_contacts.get(phone_number)
@@ -261,23 +314,24 @@ def find_contact_by_phone(dict_contacts: dict,
 
 def find_contact_by_name(dict_contacts: dict,
                          contact_name: str) -> tuple:
-    _ = ()
+    contacts = ()
     for obj in dict_contacts.values():
         if obj.contact_name.upper().find(contact_name.upper()) >= 0:
-            _ += (obj,)
-    return _
+            contacts += (obj,)
+    return contacts
 
 
-@decorator_args_kwargs
+#@decorator_args_kwargs
+@decorator_time_lost
 def find_contact_by_name_(names_dict: dict,
                           dict_contacts: dict,
                           contact_name: str) -> tuple:
-    _ = names_dict.get(contact_name.upper())
+    contacts = names_dict.get(contact_name.upper())
 
-    if _ is None:
-        _ = find_contact_by_name(dict_contacts=dict_contacts,
-                                 contact_name=contact_name)
-    return _
+    if contacts is None:
+        contacts = find_contact_by_name(dict_contacts=dict_contacts,
+                                        contact_name=contact_name)
+    return contacts
 
 
 def create_contact() -> Contact:
@@ -382,14 +436,14 @@ def full_download_dbase(path_to_file_dbase=pathlib.Path(tuning_dict['path_to_dba
 def create_cash_names(dict_contacts: dict) -> dict:
     names_dict: dict = {}
 
-    for obj in dict_contacts.values():
-        _ = ''
-        for i in obj.contact_name:
-            _ += i.upper()
-            if names_dict.get(_):
-                names_dict[_] = names_dict[_] + (obj,)
+    for contact in dict_contacts.values():
+        part_of_contact_name = ''
+        for i in contact.contact_name:
+            part_of_contact_name += i.upper()
+            if names_dict.get(part_of_contact_name):
+                names_dict[part_of_contact_name] = names_dict[part_of_contact_name] + (contact,)
             else:
-                names_dict[_] = (obj,)
+                names_dict[part_of_contact_name] = (contact,)
     return names_dict
 
 
@@ -412,7 +466,7 @@ def full_upload_dbase(dbase_dict: dict,
 
     with open(path_to_file_dbase, 'w') as fb:
         for _, contact in dbase_dict.items():
-            fb.write(contact.get_format_to_dbase() + '\n')
+            fb.write(f'{contact.format_to_dbase}\n')
             cnt_rows += 1
             if (len_dbase_dict // mark_print) >= 2 and cnt_rows % mark_print == 0:
                 print(f'upload {cnt_rows} rows...')
@@ -423,8 +477,7 @@ def full_upload_dbase(dbase_dict: dict,
 
 def full_backup_dbase(dbase_dict: dict,
                       path_to_file_dbase=pathlib.Path(tuning_dict['path_to_dbase'] + os.sep + 'contact-book.backup'),
-                      mark_print=None) -> None:
-    import json
+                      mark_print=None) -> pathlib.Path:
     try:
         if not pathlib.Path(path_to_file_dbase).exists():
             raise FileBaseNotFound
@@ -440,7 +493,7 @@ def full_backup_dbase(dbase_dict: dict,
         mark_print = get_mark_print(len_obj=len_dbase_dict)
 
     for _, contact in dbase_dict.items():
-        dict2json = {**dict2json, **contact.get_dict()}
+        dict2json = {**dict2json, **contact.dict}
         cnt_rows += 1
         if (len_dbase_dict // mark_print) >= 2 and cnt_rows % mark_print == 0:
             print(f'prepared {cnt_rows} rows...')
@@ -450,6 +503,8 @@ def full_backup_dbase(dbase_dict: dict,
 
     with open(path_to_file_dbase, 'w') as fb:
         json.dump(dict2json, fb, indent=4)
+
+    return path_to_file_dbase
 
 
 def main():
@@ -527,8 +582,7 @@ def main():
                         match search_type:
                             case 1:
                                 contact = (find_contact_by_phone(dict_contacts=contacts,
-                                                                 phone_number=input('Enter phone number for search>> '))
-                                           ,)
+                                                                 phone_number=input('Enter phone for search>> ')),)
                             case 2:
                                 if not names:
                                     names = create_cash_names(dict_contacts=contacts)
@@ -542,8 +596,9 @@ def main():
                         if contact is None:
                             raise ContactNotFound
                         else:
-                            _ = {i.phone_number: i for i in contact}  # TODO add contact method __iter__
-                            print_contacts(_)
+                            contact = {i.phone_number: i for i in contact}
+                            print_contacts(contact)
+
                             if input('Repeat find? ("Y" - Press any key / "N" - return main menu)>> ').upper() == 'N':
                                 break
                     except ContactNotFound:
@@ -597,8 +652,8 @@ def main():
                             break
 
                 if action == 6:
-                    full_backup_dbase(dbase_dict=contacts)
-                    input('Backup done...')
+                    path_to_file = full_backup_dbase(dbase_dict=contacts)
+                    input(f'Backup done... create file: {path_to_file}')
                     break
 
                 if action == 7:
