@@ -153,8 +153,7 @@ class Contact(object):
         Contact.__count_objects -= 1
 
     def __eq__(self, other):
-        return (self.phone_number == other.phone_number and
-                self.contact_name.upper() == other.contact_name.upper())
+        return self.phone_number == other.phone_number
 
     @property
     def contact_name(self):
