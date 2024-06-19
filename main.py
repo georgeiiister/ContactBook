@@ -294,7 +294,7 @@ def decorator_args_kwargs(func):
                     raise FileLogNotCreated
 
             with open(path_to_file_log, 'a') as fl:
-                sep = tuning_dict["sep_in_dbase"]
+                sep = get_tuning_value('sep_in_dbase')
                 fl.write(f'args: {sep.join(list(args))}\n')
 
                 list_kwargs = [str(i) + ':' + str(j) for i, j in kwargs.items()]
