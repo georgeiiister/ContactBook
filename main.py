@@ -3,12 +3,16 @@ import os
 import pathlib
 import json
 
-tuning_dict: dict = dict(sep_in_dbase=';',
-                         welcome_text='Welcome to you contact book!',
-                         num_of_lines=10,
-                         mark_print=100,
-                         path_to_dbase=os.path.expanduser('~'),
-                         name_log='contact-book.log')
+
+def get_tuning_value(tuning_name: str) -> (str, int):
+    tuning_dict: dict = dict(sep_in_dbase=';',
+                             welcome_text='Welcome to you contact book!',
+                             num_of_lines=10,
+                             mark_print=100,
+                             path_to_dbase=os.path.expanduser('~'),
+                             name_log='contact-book.log')
+
+    return tuning_dict[tuning_name]
 
 
 class ExceptionContactBook(Exception):
@@ -257,7 +261,7 @@ def obj2json(obj):
 
 def decorator_time_lost(func):
     def wrapper(*args, **kwargs):
-        path_to_file_log = pathlib.Path(tuning_dict['path_to_dbase'] + os.sep + tuning_dict['name_log'])
+        path_to_file_log = pathlib.Path(get_tuning_value('path_to_dbase') + os.sep + get_tuning_value('name_log'))
         try:
             if not pathlib.Path(path_to_file_log).exists():
                 raise FileLogNotFound
@@ -279,7 +283,7 @@ def decorator_time_lost(func):
 
 def decorator_args_kwargs(func):
     def wrapper(*args, **kwargs):
-        path_to_file_log = pathlib.Path(tuning_dict['path_to_dbase'] + os.sep + tuning_dict['name_log'])
+        path_to_file_log = pathlib.Path(get_tuning_value('path_to_dbase') + os.sep + get_tuning_value('name_log'))
 
         if path_to_file_log is not None:
             try:
@@ -358,9 +362,9 @@ def edit_contact(contact: Contact) -> Contact:
     return new_contact
 
 
-def get_mark_print(len_obj: int, num_of_lines: int = tuning_dict['num_of_lines']) -> int:
+def get_mark_print(len_obj: int, num_of_lines: int = get_tuning_value('num_of_lines')) -> int:
     if len_obj <= num_of_lines:
-        mark_print: int = tuning_dict['mark_print']
+        mark_print: int = get_tuning_value('mark_print')
     else:
         mark_print = num_of_lines
 
@@ -398,7 +402,8 @@ def create_file_log(path_to_file_log: pathlib.Path) -> bool | None:
     return True
 
 
-def full_download_dbase(path_to_file_dbase=pathlib.Path(tuning_dict['path_to_dbase'] + os.sep + 'contact-book.dbase'),
+def full_download_dbase(path_to_file_dbase=pathlib.Path(get_tuning_value('path_to_dbase')
+                                                        + os.sep + 'contact-book.dbase'),
                         mark_print=None) -> tuple:
     base_dict: dict = {}
 
@@ -419,7 +424,7 @@ def full_download_dbase(path_to_file_dbase=pathlib.Path(tuning_dict['path_to_dba
 
     with open(path_to_file_dbase, 'r') as fb:
         for rec in fb:
-            contact = rec.rstrip('\n').split(tuning_dict['sep_in_dbase'])  # it's tuning
+            contact = rec.rstrip('\n').split(get_tuning_value('sep_in_dbase'))  # it's tuning
             base_dict[contact[0]] = Contact(phone_number=contact[0],
                                             contact_name=contact[1],
                                             date_time_creation_contact=datetime.datetime.strptime(contact[2], mask),
@@ -478,7 +483,8 @@ def full_upload_dbase(dbase_dict: dict,
 
 
 def full_backup_dbase(dbase_dict: dict,
-                      path_to_file_dbase=pathlib.Path(tuning_dict['path_to_dbase'] + os.sep + 'contact-book.backup'),
+                      path_to_file_dbase=pathlib.Path(get_tuning_value('path_to_dbase')
+                                                      + os.sep + 'contact-book.backup'),
                       mark_print=None) -> pathlib.Path:
     try:
         if not pathlib.Path(path_to_file_dbase).exists():
@@ -510,7 +516,7 @@ def full_backup_dbase(dbase_dict: dict,
 
 
 def main():
-    welcome_text = tuning_dict['welcome_text']  # it's tuning
+    welcome_text = get_tuning_value('welcome_text')  # it's tuning
 
     menu_text = ('Select on action (enter number) and press key Enter:',
                  '1. Add contact',
