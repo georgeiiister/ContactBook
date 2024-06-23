@@ -247,6 +247,29 @@ class ContactMs(Contact):
                          )
 
 
+def get_eq(val1: str, val2: str):
+    """case-insensitive search"""
+    result = True if val1.lower() == val2.lower() else False
+
+    if not result:
+        eq_sym = {'ё': 'е',
+                  't': 'т',
+                  'e': 'е',
+                  'k': 'к',
+                  'a': 'а',
+                  'm': 'м',
+                  'b': 'в',
+                  'c': 'с',
+                  'h': 'н',
+                  'p': 'р',
+                  'o': 'о'}
+
+        if ''.join([eq_sym.get(i, i) for i in val1.lower()]) == ''.join([eq_sym.get(i, i) for i in val2.lower()]):
+            result = True
+
+    return result
+
+
 def sorted_dict_contacts(dict_contacts: dict) -> list:
     list_contacts = sorted(dict_contacts.items(), key=lambda i: i[1].contact_name)
     return list_contacts
