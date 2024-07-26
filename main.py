@@ -86,6 +86,9 @@ class Contact(object):
     def count(cls) -> int:
         return cls.__count_objects
 
+    def __del__(self):
+        Contact.__count_objects -= 1
+
     @classmethod
     def validate_contact_name(cls,
                               contact_name: str,
