@@ -491,8 +491,8 @@ def full_upload_dbase(dbase_dict: dict,
         if not create_file_base(path_to_file_dbase=path_to_file_dbase):
             raise FileBaseNotCreated
 
-    cnt_rows = 0
-    len_dbase_dict = len(dbase_dict)
+    cnt_rows: int = 0
+    len_dbase_dict: int = len(dbase_dict)
 
     if mark_print is None:
         mark_print = get_mark_print(len_obj=len_dbase_dict)
