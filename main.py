@@ -10,7 +10,15 @@ def get_tuning_value(tuning_name: str) -> (str, int):
                              num_of_lines=10,
                              mark_print=100,
                              path_to_dbase=os.path.expanduser('~'),
+                             path_to_dir='contact_book',
                              name_log='contact-book.log')
+
+    if tuning_name == 'path_to_dbase':
+        path_to_dir = f'{tuning_dict[tuning_name]}{os.sep}{tuning_dict["path_to_dir"]}'
+        if not os.path.exists(path_to_dir):
+            os.mkdir(path_to_dir)
+
+        return path_to_dir
 
     return tuning_dict[tuning_name]
 
@@ -56,6 +64,9 @@ class FileBaseNotFound(ExceptionContactBook):
 
 
 class FileBaseNotCreated(ExceptionContactBook):
+    pass
+
+class DirBaseNotCreated(ExceptionContactBook):
     pass
 
 
