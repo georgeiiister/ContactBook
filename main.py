@@ -5,6 +5,7 @@ import json
 
 
 def get_tuning_value(tuning_name: str) -> (str, int):
+    """function for getting tuning parameters for application"""
     tuning_dict: dict = dict(sep_in_dbase=';',
                              welcome_text='Welcome to you contact book!',
                              num_of_lines=10,
