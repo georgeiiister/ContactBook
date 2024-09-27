@@ -105,6 +105,7 @@ class Contact(object):
     def validate_contact_name(cls,
                               contact_name: str,
                               raise_error=True) -> bool:
+        """this function for validate contact name"""
         try:
 
             if not contact_name:
