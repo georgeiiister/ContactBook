@@ -89,9 +89,7 @@ class Contact(object):
 
     @classmethod
     def mask_date_time_creation(cls) -> str:
-        """
-        This method return validate mask for date and time of object Contact
-        """
+        """This method return validate mask for date and time of object Contact"""
         return cls.__mask_date_time_creation
 
     @classmethod
